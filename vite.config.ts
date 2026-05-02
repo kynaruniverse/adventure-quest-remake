@@ -11,9 +11,9 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
-  root: path.resolve(__dirname, "client"),
+  root: "client", // Look for index.html inside the client folder
   build: {
-    outDir: path.resolve(__dirname, "dist"),
+    outDir: "../dist", // Put the build files in the root dist folder
     emptyOutDir: true,
   },
 });
