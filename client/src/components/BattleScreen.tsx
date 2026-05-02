@@ -1,4 +1,6 @@
 import { useBattle } from '@/hooks/useBattle';
+import { useGameStore } from '@/store/useGameStore';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -6,6 +8,16 @@ import { Sword, Wand2, Zap, Shield } from 'lucide-react';
 
 export default function BattleScreen() {
   const { player, monster, battleState, battleActive, executeAction, startNewBattle } = useBattle();
+  const updateGold = useGameStore((state) => state.updateGold);
+  const addXP = useGameStore((state) => state.addXP);
+
+  // Persistence: Save rewards when monster dies
+  useEffect(() => {
+    if (!battleActive && battleState.monsterHp <= 0) {
+      updateGold(monster.level * 10); // Reward gold
+      addXP(monster.level * 25);     // Reward XP
+    }
+  }, [battleActive, battleState.monsterHp]);
 
   const playerHpPercent = (battleState.playerHp / player.maxHp) * 100;
   const monsterHpPercent = (battleState.monsterHp / monster.maxHp) * 100;
@@ -19,9 +31,9 @@ export default function BattleScreen() {
       </div>
 
       {/* Battle Arena */}
-      <div className="grid grid-cols-2 gap-8 mb-8 max-w-4xl mx-auto">
+      <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 mb-6 max-w-4xl mx-auto">
         {/* Player Side */}
-        <Card className="bg-slate-700 border-amber-600 border-2 p-6">
+        <Card className="bg-slate-700 border-amber-600 border-2 p-3 md:p-6">
           <div className="text-center mb-4">
             <h2 className="text-2xl font-bold text-amber-400">{player.name}</h2>
             <p className="text-slate-300 text-sm">Level {player.level}</p>
@@ -64,7 +76,7 @@ export default function BattleScreen() {
         </Card>
 
         {/* Monster Side */}
-        <Card className="bg-slate-700 border-red-600 border-2 p-6">
+        <Card className="bg-slate-700 border-red-600 border-2 p-3 md:p-6">
           <div className="text-center mb-4">
             <h2 className="text-2xl font-bold text-red-400">{monster.name}</h2>
             <p className="text-slate-300 text-sm">Level {monster.level}</p>
@@ -118,10 +130,10 @@ export default function BattleScreen() {
       {/* Action Buttons */}
       <div className="max-w-4xl mx-auto">
         {battleActive ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-2 pb-8">
             <Button
               onClick={() => executeAction({ type: 'attack', target: 'monster' })}
-              className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2"
+              className="h-14 bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-2"
             >
               <Sword size={18} />
               Attack
@@ -131,7 +143,7 @@ export default function BattleScreen() {
               onClick={() =>
                 executeAction({ type: 'spell', target: 'monster', value: 'spell-fireball' })
               }
-              className="bg-orange-600 hover:bg-orange-700 text-white flex items-center justify-center gap-2"
+              className="h-14 bg-orange-600 hover:bg-orange-700 text-white flex items-center justify-center gap-2"
             >
               <Wand2 size={18} />
               Spell
@@ -139,7 +151,7 @@ export default function BattleScreen() {
 
             <Button
               onClick={() => executeAction({ type: 'item', target: 'player' })}
-              className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+              className="h-14 een-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
             >
               <Zap size={18} />
               Item
@@ -147,7 +159,7 @@ export default function BattleScreen() {
 
             <Button
               onClick={() => executeAction({ type: 'defend', target: 'player' })}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+              className="h-14 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
             >
               <Shield size={18} />
               Defend
