@@ -1,20 +1,13 @@
-import { useRef } from "react";
+import { useRef, useCallback, useLayoutEffect } from 'react';
 
-type noop = (...args: any[]) => any;
-
-/**
- * usePersistFn instead of useCallback to reduce cognitive load
- */
-export function usePersistFn<T extends noop>(fn: T) {
+export function usePersistFn<T extends (...args: any[]) => any>(fn: T): T {
   const fnRef = useRef<T>(fn);
-  (fnRef as any).current = fn;
 
-  const persistFn = useRef<T>(null);
-  if (!persistFn.current) {
-    persistFn.current = function (this: unknown, ...args) {
-      return fnRef.current!.apply(this, args);
-    } as T;
-  }
+  useLayoutEffect(() => {
+    fnRef.current = fn;
+  });
 
-  return persistFn.current!;
+  return useCallback(((...args: any[]) => {
+    return fnRef.current?.(...args);
+  }) as T, []);
 }
