@@ -5,7 +5,7 @@ import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), themePlugin()],
+  plugins: [react(), tailwindcss(), themePlugin()], // Cleaned list
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client/src"),
@@ -14,7 +14,7 @@ export default defineConfig({
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist"),
+    outDir: path.resolve(__dirname, "../dist"), // Back out of client to root dist
     emptyOutDir: true,
   },
 });
