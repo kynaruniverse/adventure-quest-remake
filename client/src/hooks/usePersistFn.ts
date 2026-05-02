@@ -7,7 +7,7 @@ type noop = (...args: any[]) => any;
  */
 export function usePersistFn<T extends noop>(fn: T) {
   const fnRef = useRef<T>(fn);
-  fnRef.current = fn;
+  (fnRef as any).current = fn;
 
   const persistFn = useRef<T>(null);
   if (!persistFn.current) {
