@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Player } from '@shared/schema';
+import { Character } from '../lib/gameEngine';
 
 interface GameState {
-  player: Player | null;
-  setPlayer: (player: Player | null) => void;
+  player: Character | null;
+  setPlayer: (player: Character | null) => void;
   updateGold: (amount: number) => void;
   addXP: (amount: number) => void;
   resetGame: () => void;
