@@ -6,6 +6,7 @@ import ClassicBattleScreen from './ClassicBattleScreen';
 import TownHub from './TownHub';
 import Shop from './Shop';
 import CharacterCreation from './CharacterCreation';
+import BattleScreen from './BattleScreen';
 
 type GameScreen = 'creation' | 'town' | 'battle' | 'shop';
 
@@ -95,8 +96,8 @@ export default function GameManager() {
     }
   }, [player.gold]);
 
-  return (
-    <>
+    return (
+    <div className="game-container">
       {screen === 'creation' ? (
         <CharacterCreation onCharacterCreated={handleCharacterCreated} />
       ) : screen === 'town' ? (
@@ -113,10 +114,15 @@ export default function GameManager() {
           armors={Object.values(ARMORS)}
           onPurchaseWeapon={handlePurchaseWeapon}
           onPurchaseArmor={handlePurchaseArmor}
+          onBack={() => setScreen('town')}
         />
-      ) : monster ? (
-        <ClassicBattleScreen />
+      ) : screen === 'battle' && monster ? (
+        <BattleScreen 
+          player={player}
+          monster={monster}
+          onBattleEnd={handleBattleEnd}
+        />
       ) : null}
-    </>
+    </div>
   );
 }

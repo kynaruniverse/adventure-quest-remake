@@ -1,23 +1,38 @@
 import { useBattle } from '@/hooks/useBattle';
-import { useGameStore } from '@/store/useGameStore';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Sword, Wand2, Zap, Shield } from 'lucide-react';
+import { Character, Monster } from '@/lib/gameEngine';
 
-export default function BattleScreen() {
-  const { player, monster, battleState, battleActive, executeAction, startNewBattle } = useBattle();
-  const updateGold = useGameStore((state) => state.updateGold);
-  const addXP = useGameStore((state) => state.addXP);
+interface BattleScreenProps {
+  player: Character;
+  monster: Monster;
+  onBattleEnd: (victory: boolean, rewards?: { exp: number; gold: number }) => void;
+}
 
-  // Persistence: Save rewards when monster dies
+export default function BattleScreen({ player: initialPlayer, monster: initialMonster, onBattleEnd }: BattleScreenProps) {
+  // We use the hook, but we want it to stay in sync with the Manager
+  const { battleState, battleActive, executeAction } = useBattle();
+
+  // Link the battle victory back to the GameManager
   useEffect(() => {
-    if (!battleActive && battleState.monsterHp <= 0) {
-      updateGold(monster.level * 10); // Reward gold
-      addXP(monster.level * 25);     // Reward XP
+    if (!battleActive) {
+      const victory = battleState.monsterHp <= 0;
+      if (victory) {
+        onBattleEnd(true, { 
+          exp: initialMonster.level * 25, 
+          gold: initialMonster.level * 10 
+        });
+      } else if (battleState.playerHp <= 0) {
+        onBattleEnd(false);
+      }
     }
-  }, [battleActive, battleState.monsterHp]);
+  }, [battleActive, battleState.monsterHp, battleState.playerHp, onBattleEnd, initialMonster]);
+
+  const playerHpPercent = (battleState.playerHp / initialPlayer.maxHp) * 100;
+  const monsterHpPercent = (battleState.monsterHp / initialMonster.maxHp) * 100;
+
 
   const playerHpPercent = (battleState.playerHp / player.maxHp) * 100;
   const monsterHpPercent = (battleState.monsterHp / monster.maxHp) * 100;
@@ -101,10 +116,11 @@ export default function BattleScreen() {
           </>
         ) : (
           <Button 
-            onClick={startNewBattle}
-            className="h-full bg-amber-500 text-slate-900 font-black uppercase tracking-tighter text-center py-4"
+            onClick={() => onBattleEnd(battleState.monsterHp <= 0)}
+            className="h-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-black uppercase tracking-tighter text-center py-4 animate-pulse"
           >
-            Victory! <br/> Continue
+            {battleState.monsterHp <= 0 ? 'VICTORY' : 'DEFEAT'} <br/> 
+            <span className="text-[10px]">TAP TO RETURN</span>
           </Button>
         )}
       </nav>
