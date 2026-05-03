@@ -23,129 +23,91 @@ export default function BattleScreen() {
   const monsterHpPercent = (battleState.monsterHp / monster.maxHp) * 100;
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-slate-950 font-sans select-none">
+    <div className="h-full w-full flex flex-row overflow-hidden bg-slate-950 font-sans select-none p-2 gap-2">
       
-      {/* 1. HUD (Top Bar) */}
-      <header className="flex-none p-3 bg-slate-900 border-b-2 border-slate-800 flex justify-between items-center z-10 shadow-md">
-        <h1 className="text-xl font-black text-amber-500 tracking-widest drop-shadow-sm uppercase">Round {battleState.round}</h1>
-        <div className="flex gap-3 text-sm font-bold bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-          <span className="text-amber-400">Lv.{player.level}</span>
-        </div>
-      </header>
-
-      {/* 2. Main Arena (Middle Screen - takes all remaining space) */}
-      <main className="flex-1 relative flex flex-col justify-between p-4 bg-gradient-to-b from-slate-800 to-slate-900 overflow-hidden">
-        
-        {/* Monster Area (Top Right) */}
-        <div className="flex flex-col items-end w-full animate-in fade-in slide-in-from-right-4 duration-500">
-          <div className="text-right mb-2">
-            <h2 className="text-2xl font-black text-red-400 drop-shadow-lg">{monster.name}</h2>
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{monster.element} Element</span>
+      {/* LEFT COLUMN: Player Stats & Action Log */}
+      <div className="w-1/4 flex flex-col gap-2 z-20">
+        <Card className="flex-none bg-slate-900/90 border-2 border-amber-600/50 p-2 shadow-xl backdrop-blur-md">
+          <p className="text-[10px] font-black text-amber-500 uppercase mb-1">{player.name} <span className="text-slate-400 font-normal">Lv.{player.level}</span></p>
+          <div className="space-y-1.5">
+            <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+              <div className="h-full bg-green-500 transition-all duration-500" style={{ width: `${Math.max(0, playerHpPercent)}%` }} />
+            </div>
+            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+              <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${(player.mp / player.maxMp) * 100}%` }} />
+            </div>
           </div>
-          
-          <Card className="w-56 bg-slate-900/90 border-2 border-red-900/50 p-3 shadow-xl backdrop-blur-md">
-            <div className="flex justify-between text-sm font-bold mb-1">
-              <span className="text-slate-300">HP</span>
-              <span className="text-red-400">{Math.max(0, battleState.monsterHp)} / {monster.maxHp}</span>
-            </div>
-            <div className="relative h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-              <div 
-                className="h-full bg-red-600 transition-all duration-500" 
-                style={{ width: `${Math.max(0, monsterHpPercent)}%` }}
-              />
-            </div>
-          </Card>
-        </div>
+        </Card>
 
-        {/* Player Area (Bottom Left) */}
-        <div className="flex flex-col items-start w-full mt-auto mb-20 animate-in fade-in slide-in-from-left-4 duration-500">
-          <div className="mb-2">
-            <h2 className="text-2xl font-black text-amber-400 drop-shadow-lg">{player.name}</h2>
-          </div>
-          
-          <Card className="w-64 bg-slate-900/90 border-2 border-amber-600/50 p-3 shadow-xl backdrop-blur-md">
-            {/* HP */}
-            <div className="flex justify-between text-sm font-bold mb-1">
-              <span className="text-slate-300">HP</span>
-              <span className="text-green-400">{Math.max(0, battleState.playerHp)} / {player.maxHp}</span>
-            </div>
-            <div className="relative h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700 mb-3">
-              <div 
-                className="h-full bg-green-500 transition-all duration-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" 
-                style={{ width: `${Math.max(0, playerHpPercent)}%` }}
-              />
-            </div>
-            
-            {/* MP */}
-            <div className="flex justify-between text-xs font-bold mb-1">
-              <span className="text-slate-400">MP</span>
-              <span className="text-blue-400">{player.mp} / {player.maxMp}</span>
-            </div>
-            <div className="relative h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-              <div 
-                className="h-full bg-blue-500 transition-all duration-500" 
-                style={{ width: `${(player.mp / player.maxMp) * 100}%` }}
-              />
-            </div>
-          </Card>
-        </div>
-
-        {/* Floating Battle Log (Sits over the arena floor) */}
-        <div className="absolute inset-x-4 bottom-2 h-24 overflow-hidden bg-slate-950/80 rounded-lg border border-slate-800 backdrop-blur-sm p-3 flex flex-col justify-end shadow-inner pointer-events-none">
+        {/* Vertical Battle Log */}
+        <div className="flex-1 overflow-hidden bg-slate-950/80 rounded-lg border border-slate-800 backdrop-blur-sm p-2 flex flex-col justify-end shadow-inner">
           <div className="space-y-1 overflow-y-auto flex flex-col-reverse h-full">
-            {[...battleState.battleLog].reverse().slice(0, 3).map((log, idx) => (
-              <p key={idx} className={`text-sm md:text-base ${idx === 0 ? 'text-white font-bold drop-shadow-md' : 'text-slate-500'}`}>
-                {idx === 0 && <span className="text-amber-500 mr-2">▶</span>}
+            {[...battleState.battleLog].reverse().slice(0, 5).map((log, idx) => (
+              <p key={idx} className={`text-[10px] leading-tight ${idx === 0 ? 'text-white font-bold' : 'text-slate-500'}`}>
                 {log}
               </p>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* CENTER: The Arena Stage */}
+      <main className="flex-1 relative flex items-center justify-between px-12 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl border-x border-slate-800 overflow-hidden">
+        {/* Monster HP bar floating above monster */}
+        <div className="absolute top-8 right-12 w-48 text-right">
+           <h2 className="text-lg font-black text-red-400 uppercase tracking-tighter mb-1">{monster.name}</h2>
+           <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+              <div className="h-full bg-red-600 transition-all duration-500" style={{ width: `${Math.max(0, monsterHpPercent)}%` }} />
+            </div>
+        </div>
+
+        {/* Visualization Placeholders (Where sprites will go) */}
+        <div className="w-32 h-32 bg-slate-700/20 rounded-full blur-xl absolute bottom-10 left-10" /> {/* Player Shadow */}
+        <div className="w-32 h-32 bg-red-900/20 rounded-full blur-xl absolute bottom-10 right-10" /> {/* Monster Shadow */}
+        
+        <div className="text-4xl font-black text-slate-800/50 uppercase absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-10deg] pointer-events-none">
+          Round {battleState.round}
+        </div>
       </main>
 
-      {/* 3. Command Deck (Bottom Fixed) */}
-      <footer className="flex-none bg-slate-950 border-t-4 border-slate-800 p-4 pb-8 z-10 shadow-[0_-10px_20px_rgba(0,0,0,0.4)]">
+      {/* RIGHT COLUMN: Command Deck (Thumb Zone) */}
+      <nav className="w-1/5 flex flex-col gap-2 z-20">
         {battleActive ? (
-          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+          <>
             <Button 
               onClick={() => executeAction({ type: 'attack', target: 'monster' })}
-              className="h-16 text-lg bg-red-600 hover:bg-red-700 border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all flex justify-center items-center gap-2 font-bold shadow-lg rounded-xl"
+              className="flex-1 bg-red-600 hover:bg-red-700 border-r-4 border-red-900 active:border-r-0 active:translate-x-1 transition-all flex flex-col justify-center items-center font-black uppercase text-xs"
             >
-              <Sword size={24} /> Attack
+              <Sword size={20} className="mb-1" /> Attack
             </Button>
             <Button 
               onClick={() => executeAction({ type: 'spell', target: 'monster', value: 'spell-fireball' })}
-              className="h-16 text-lg bg-orange-600 hover:bg-orange-700 border-b-4 border-orange-900 active:border-b-0 active:translate-y-1 transition-all flex justify-center items-center gap-2 font-bold shadow-lg rounded-xl"
+              className="flex-1 bg-orange-600 hover:bg-orange-700 border-r-4 border-orange-900 active:border-r-0 active:translate-x-1 transition-all flex flex-col justify-center items-center font-black uppercase text-xs"
             >
-              <Wand2 size={24} /> Spell
+              <Wand2 size={20} className="mb-1" /> Spell
             </Button>
             <Button 
               onClick={() => executeAction({ type: 'item', target: 'player' })}
-              className="h-16 text-lg bg-green-600 hover:bg-green-700 border-b-4 border-green-900 active:border-b-0 active:translate-y-1 transition-all flex justify-center items-center gap-2 font-bold shadow-lg rounded-xl"
+              className="flex-1 bg-green-600 hover:bg-green-700 border-r-4 border-green-900 active:border-r-0 active:translate-x-1 transition-all flex flex-col justify-center items-center font-black uppercase text-xs"
             >
-              <Zap size={24} /> Item
+              <Zap size={20} className="mb-1" /> Item
             </Button>
             <Button 
               onClick={() => executeAction({ type: 'defend', target: 'player' })}
-              className="h-16 text-lg bg-blue-600 hover:bg-blue-700 border-b-4 border-blue-900 active:border-b-0 active:translate-y-1 transition-all flex justify-center items-center gap-2 font-bold shadow-lg rounded-xl"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 border-r-4 border-blue-900 active:border-r-0 active:translate-x-1 transition-all flex flex-col justify-center items-center font-black uppercase text-xs"
             >
-              <Shield size={24} /> Defend
+              <Shield size={20} className="mb-1" /> Defend
             </Button>
-          </div>
+          </>
         ) : (
-          <div className="flex flex-col items-center justify-center max-w-md mx-auto">
-            <p className="text-3xl font-black text-amber-400 mb-4 animate-pulse drop-shadow-xl uppercase tracking-widest">
-              {battleState.playerHp <= 0 ? 'Defeated' : 'Victory!'}
-            </p>
-            <Button 
-              onClick={startNewBattle}
-              className="w-full h-16 text-xl bg-amber-500 hover:bg-amber-600 text-slate-900 border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 transition-all font-black shadow-xl rounded-xl uppercase tracking-wide"
-            >
-              Continue Adventure
-            </Button>
-          </div>
+          <Button 
+            onClick={startNewBattle}
+            className="h-full bg-amber-500 text-slate-900 font-black uppercase tracking-tighter text-center py-4"
+          >
+            Victory! <br/> Continue
+          </Button>
         )}
-      </footer>
+      </nav>
     </div>
   );
 }

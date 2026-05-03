@@ -13,167 +13,131 @@ interface ShopProps {
   onPurchaseArmor: (armorId: string) => void;
 }
 
-export default function Shop({ player, weapons, armors, onPurchaseWeapon, onPurchaseArmor }: ShopProps) {
+export default function Shop({ player, weapons, armors, onPurchaseWeapon, onPurchaseArmor, onBack }: ShopProps & { onBack: () => void }) {
   const [selectedTab, setSelectedTab] = useState('weapons');
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900 p-4">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-amber-100 drop-shadow-lg">Merchant's Shop</h1>
-        <p className="text-amber-200 mt-2">Upgrade your equipment</p>
-      </div>
-
-      {/* Player Gold Display */}
-      <Card className="bg-amber-700 border-amber-600 border-2 p-4 mb-8 max-w-2xl mx-auto">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-amber-100 text-sm">Your Gold</p>
-            <p className="text-3xl font-bold text-yellow-500">{player.gold}</p>
+    return (
+    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-slate-950 select-none">
+      
+      {/* HUD / Header */}
+      <header className="flex-none p-4 bg-slate-900 border-b-2 border-amber-600/50 flex justify-between items-center z-10 shadow-lg">
+        <div>
+          <h1 className="text-xl font-black text-amber-500 uppercase tracking-tighter">Blacksmith</h1>
+          <div className="flex items-center gap-1">
+            <Coins size={14} className="text-yellow-500" />
+            <span className="text-lg font-bold text-yellow-500">{player.gold}</span>
           </div>
-          <Coins className="text-yellow-500" size={48} />
         </div>
-      </Card>
+        <Button 
+          onClick={onBack}
+          variant="ghost" 
+          className="text-amber-500 border border-amber-900/50 hover:bg-amber-900/20"
+        >
+          Leave Shop
+        </Button>
+      </header>
 
-      {/* Shop Tabs */}
-      <div className="max-w-4xl mx-auto">
+      {/* Main Shop Area */}
+      <main className="flex-1 overflow-y-auto p-4 bg-slate-900/50 custom-scrollbar">
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-amber-700 border-2 border-amber-600">
-            <TabsTrigger value="weapons" className="text-amber-100 data-[state=active]:bg-amber-600">
-              Weapons
+          <TabsList className="grid w-full grid-cols-2 bg-slate-800 border-2 border-slate-700 mb-4 p-1 h-12">
+            <TabsTrigger value="weapons" className="font-bold data-[state=active]:bg-amber-600 data-[state=active]:text-slate-950">
+              WEAPONS
             </TabsTrigger>
-            <TabsTrigger value="armor" className="text-amber-100 data-[state=active]:bg-amber-600">
-              Armor
+            <TabsTrigger value="armor" className="font-bold data-[state=active]:bg-amber-600 data-[state=active]:text-slate-950">
+              ARMOR
             </TabsTrigger>
           </TabsList>
 
-          {/* Weapons Tab */}
-          <TabsContent value="weapons" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {weapons.map((weapon) => {
-                const canAfford = player.gold >= weapon.price;
-                const isEquipped = player.equipment.weapon === weapon.id;
+          {/* Weapons Content */}
+          <TabsContent value="weapons" className="space-y-3 m-0 outline-none">
+            {weapons.map((weapon) => {
+              const canAfford = player.gold >= weapon.price;
+              const isEquipped = player.equipment.weapon === weapon.id;
+              const levelLocked = player.level < weapon.level;
 
-                return (
-                  <Card
-                    key={weapon.id}
-                    className={`p-4 border-2 ${
-                      isEquipped
-                        ? 'bg-green-700 border-green-500'
-                        : 'bg-amber-700 border-amber-600'
-                    }`}
-                  >
-                    <div className="mb-3">
-                      <h3 className="text-lg font-bold text-amber-100">{weapon.name}</h3>
-                      <p className="text-sm text-amber-200">
-                        Type: <span className="capitalize">{weapon.type}</span>
-                      </p>
-                      <p className="text-sm text-amber-200">
-                        Element: <span className="capitalize text-amber-300">{weapon.element}</span>
-                      </p>
+              return (
+                <Card key={weapon.id} className={`p-0 overflow-hidden border-2 bg-slate-800 ${isEquipped ? 'border-green-500' : 'border-slate-700'}`}>
+                  <div className="flex">
+                    <div className="w-20 bg-slate-700 flex items-center justify-center border-r border-slate-600">
+                      <ShoppingCart className={isEquipped ? "text-green-500" : "text-slate-500"} size={32} />
                     </div>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-amber-100">Damage:</span>
-                        <span className="text-red-400 font-bold">{weapon.damage}</span>
+                    <div className="flex-1 p-3">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className={`font-bold ${isEquipped ? 'text-green-400' : 'text-amber-100'}`}>{weapon.name}</h3>
+                        <span className="text-yellow-500 font-black tracking-tighter">{weapon.price}G</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-amber-100">Accuracy:</span>
-                        <span className="text-blue-400 font-bold">{weapon.accuracy}%</span>
+                      <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                        <span>ATK: <b className="text-red-400">{weapon.damage}</b></span>
+                        <span>ACC: <b className="text-blue-400">{weapon.accuracy}%</b></span>
+                        <span className={levelLocked ? "text-purple-500" : ""}>LVL: {weapon.level}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-amber-100">Level Req:</span>
-                        <span className="text-purple-400 font-bold">{weapon.level}</span>
-                      </div>
-                      <div className="flex justify-between text-sm border-t border-amber-600 pt-2">
-                        <span className="text-amber-100">Price:</span>
-                        <span className="text-yellow-500 font-bold">{weapon.price} Gold</span>
-                      </div>
+                      <Button
+                        onClick={() => onPurchaseWeapon(weapon.id)}
+                        disabled={!canAfford || isEquipped || levelLocked}
+                        size="sm"
+                        className={`w-full h-8 font-black uppercase text-xs rounded-none border-b-2 ${
+                          isEquipped ? 'bg-green-600 border-green-800' : 
+                          levelLocked ? 'bg-slate-700 border-slate-900 opacity-50' :
+                          canAfford ? 'bg-amber-500 border-amber-700 text-slate-900' : 'bg-red-900/50 border-red-950 text-red-200'
+                        }`}
+                      >
+                        {isEquipped ? 'Equipped' : levelLocked ? `Level ${weapon.level} Required` : canAfford ? 'Purchase' : 'Low Gold'}
+                      </Button>
                     </div>
-
-                    <Button
-                      onClick={() => onPurchaseWeapon(weapon.id)}
-                      disabled={!canAfford || isEquipped}
-                      className={`w-full font-bold ${
-                        isEquipped
-                          ? 'bg-green-600 text-white'
-                          : canAfford
-                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                          : 'bg-gray-600 text-gray-300'
-                      }`}
-                    >
-                      {isEquipped ? '✓ Equipped' : canAfford ? 'Buy' : 'Not Enough Gold'}
-                    </Button>
-                  </Card>
-                );
-              })}
-            </div>
+                  </div>
+                </Card>
+              );
+            })}
           </TabsContent>
 
-          {/* Armor Tab */}
-          <TabsContent value="armor" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {armors.map((armor) => {
-                const canAfford = player.gold >= armor.price;
-                const isEquipped = player.equipment.armor === armor.id;
+          {/* Armor Content */}
+          <TabsContent value="armor" className="space-y-3 m-0 outline-none">
+            {armors.map((armor) => {
+              const canAfford = player.gold >= armor.price;
+              const isEquipped = player.equipment.armor === armor.id;
+              const levelLocked = player.level < armor.level;
 
-                return (
-                  <Card
-                    key={armor.id}
-                    className={`p-4 border-2 ${
-                      isEquipped
-                        ? 'bg-green-700 border-green-500'
-                        : 'bg-amber-700 border-amber-600'
-                    }`}
-                  >
-                    <div className="mb-3">
-                      <h3 className="text-lg font-bold text-amber-100">{armor.name}</h3>
-                      <p className="text-sm text-amber-200">Protective Gear</p>
+              return (
+                <Card key={armor.id} className={`p-0 overflow-hidden border-2 bg-slate-800 ${isEquipped ? 'border-green-500' : 'border-slate-700'}`}>
+                  <div className="flex">
+                    <div className="w-20 bg-slate-700 flex items-center justify-center border-r border-slate-600">
+                      <ShoppingCart className={isEquipped ? "text-green-500" : "text-slate-500"} size={32} />
                     </div>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-amber-100">Defense:</span>
-                        <span className="text-blue-400 font-bold">{armor.defense}</span>
+                    <div className="flex-1 p-3">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className={`font-bold ${isEquipped ? 'text-green-400' : 'text-amber-100'}`}>{armor.name}</h3>
+                        <span className="text-yellow-500 font-black tracking-tighter">{armor.price}G</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-amber-100">Level Req:</span>
-                        <span className="text-purple-400 font-bold">{armor.level}</span>
+                      <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                        <span>DEF: <b className="text-blue-400">{armor.defense}</b></span>
+                        <span className={levelLocked ? "text-purple-500" : ""}>LVL: {armor.level}</span>
                       </div>
-                      <div className="flex justify-between text-sm border-t border-amber-600 pt-2">
-                        <span className="text-amber-100">Price:</span>
-                        <span className="text-yellow-500 font-bold">{armor.price} Gold</span>
-                      </div>
+                      <Button
+                        onClick={() => onPurchaseArmor(armor.id)}
+                        disabled={!canAfford || isEquipped || levelLocked}
+                        size="sm"
+                        className={`w-full h-8 font-black uppercase text-xs rounded-none border-b-2 ${
+                          isEquipped ? 'bg-green-600 border-green-800' : 
+                          levelLocked ? 'bg-slate-700 border-slate-900 opacity-50' :
+                          canAfford ? 'bg-amber-500 border-amber-700 text-slate-900' : 'bg-red-900/50 border-red-950 text-red-200'
+                        }`}
+                      >
+                        {isEquipped ? 'Equipped' : levelLocked ? `Level ${armor.level} Required` : canAfford ? 'Purchase' : 'Low Gold'}
+                      </Button>
                     </div>
-
-                    <Button
-                      onClick={() => onPurchaseArmor(armor.id)}
-                      disabled={!canAfford || isEquipped}
-                      className={`w-full font-bold ${
-                        isEquipped
-                          ? 'bg-green-600 text-white'
-                          : canAfford
-                          ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                          : 'bg-gray-600 text-gray-300'
-                      }`}
-                    >
-                      {isEquipped ? '✓ Equipped' : canAfford ? 'Buy' : 'Not Enough Gold'}
-                    </Button>
-                  </Card>
-                );
-              })}
-            </div>
+                  </div>
+                </Card>
+              );
+            })}
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* Back Button */}
-      <div className="max-w-4xl mx-auto mt-8">
-        <Button variant="outline" className="w-full text-amber-400 border-amber-600">
-          ← Back to Town
-        </Button>
-      </div>
+      </main>
+      
+      {/* Hint Footer */}
+      <footer className="flex-none p-3 bg-slate-950 text-center border-t border-slate-800">
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">New stock arrives as you level up</p>
+      </footer>
     </div>
   );
 }

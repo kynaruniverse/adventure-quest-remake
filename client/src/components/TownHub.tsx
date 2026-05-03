@@ -3,7 +3,7 @@ import { Character } from '@/lib/gameEngine';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Heart, Coins, Users } from 'lucide-react';
+import { MapPin, Heart, Coins, Users, Sword } from 'lucide-react';
 import CharacterSheet from './CharacterSheet';
 
 interface TownHubProps {
@@ -16,114 +16,100 @@ interface TownHubProps {
 export default function TownHub({ player, onStartBattle, onRest, onVisitShop }: TownHubProps) {
   const [showCharacter, setShowCharacter] = useState(false);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900 p-4">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-amber-100 drop-shadow-lg">BattleOn Town</h1>
-        <p className="text-amber-200 mt-2">Welcome, {player.name}!</p>
-      </div>
-
-      {/* Player Status Bar */}
-      <Card className="bg-amber-700 border-amber-600 border-2 p-4 mb-8 max-w-2xl mx-auto">
-        <div className="grid grid-cols-4 gap-4 text-center">
-          <div>
-            <p className="text-amber-100 text-sm">Level</p>
-            <p className="text-2xl font-bold text-amber-300">{player.level}</p>
+    return (
+    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-slate-950 select-none">
+      
+      {/* 1. HUD (Top Bar) */}
+      <header className="flex-none p-4 bg-slate-900 border-b-2 border-slate-800 flex justify-between items-center z-10 shadow-lg">
+        <div>
+          <h1 className="text-xl font-black text-amber-500 uppercase tracking-widest leading-none">BattleOn</h1>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{player.name}</p>
+        </div>
+        <div className="flex gap-2">
+          <div className="bg-slate-800 px-3 py-1 rounded border border-slate-700 text-center">
+            <p className="text-[10px] text-slate-500 font-bold uppercase">Gold</p>
+            <p className="text-sm font-black text-yellow-500 leading-none">{player.gold}</p>
           </div>
-          <div>
-            <p className="text-amber-100 text-sm">Health</p>
-            <p className="text-2xl font-bold text-red-400">
-              {player.hp}/{player.maxHp}
-            </p>
-          </div>
-          <div>
-            <p className="text-amber-100 text-sm">Mana</p>
-            <p className="text-2xl font-bold text-blue-400">
-              {player.mp}/{player.maxMp}
-            </p>
-          </div>
-          <div>
-            <p className="text-amber-100 text-sm">Gold</p>
-            <p className="text-2xl font-bold text-yellow-500">{player.gold}</p>
+          <div className="bg-slate-800 px-3 py-1 rounded border border-slate-700 text-center">
+            <p className="text-[10px] text-slate-500 font-bold uppercase">Level</p>
+            <p className="text-sm font-black text-amber-400 leading-none">{player.level}</p>
           </div>
         </div>
-      </Card>
+      </header>
 
-      {/* Main Locations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
-        {/* Inn */}
-        <Card className="bg-amber-700 border-amber-600 border-2 p-6 hover:bg-amber-600 transition">
-          <div className="flex items-center gap-3 mb-3">
-            <Heart className="text-red-400" size={24} />
-            <h2 className="text-2xl font-bold text-amber-100">The Inn</h2>
-          </div>
-          <p className="text-amber-200 mb-4">Rest and recover your health and mana.</p>
-          <Button
-            onClick={onRest}
-            className="w-full bg-red-600 hover:bg-red-700 text-white"
-          >
-            Rest (Free)
-          </Button>
-        </Card>
+      {/* 2. Central Hub Visual (Arena Space) */}
+      <main className="flex-1 relative flex flex-col justify-center items-center p-6 bg-gradient-to-b from-slate-800 to-slate-950 overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center">
+          <MapPin size={300} className="text-slate-400" />
+        </div>
 
-        {/* Tavern */}
-        <Card className="bg-amber-700 border-amber-600 border-2 p-6 hover:bg-amber-600 transition">
-          <div className="flex items-center gap-3 mb-3">
-            <Users className="text-purple-400" size={24} />
-            <h2 className="text-2xl font-bold text-amber-100">The Tavern</h2>
+        <div className="z-10 text-center space-y-6">
+          {/* Quick Health/Mana Gauges */}
+          <div className="flex gap-4 mb-8">
+             <div className="w-24">
+                <p className="text-[10px] font-bold text-green-500 uppercase mb-1">Health</p>
+                <div className="h-2 w-full bg-slate-900 rounded-full border border-slate-700">
+                  <div className="h-full bg-green-500 rounded-full" style={{ width: `${(player.hp/player.maxHp)*100}%` }} />
+                </div>
+             </div>
+             <div className="w-24">
+                <p className="text-[10px] font-bold text-blue-500 uppercase mb-1">Mana</p>
+                <div className="h-2 w-full bg-slate-900 rounded-full border border-slate-700">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(player.mp/player.maxMp)*100}%` }} />
+                </div>
+             </div>
           </div>
-          <p className="text-amber-200 mb-4">Meet adventurers and hear tales of battles.</p>
-          <Button
+
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Town Center</h2>
+          <p className="text-slate-400 max-w-xs text-sm font-medium">The monster threat grows outside the walls. Prepare yourself.</p>
+        </div>
+      </main>
+
+            {/* 3. Landscape Command Deck (Buttons spread across the bottom) */}
+      <footer className="flex-none bg-slate-900 border-t-2 border-slate-800 p-2 z-20">
+        <div className="flex flex-row gap-2 h-16 max-w-full mx-auto">
+          <Button 
             onClick={onStartBattle}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            className="flex-[2] h-full bg-red-600 border-b-4 border-red-900 font-black uppercase tracking-widest text-sm"
           >
-            Find Battle
+            <Sword size={18} className="mr-2" /> Adventure
           </Button>
-        </Card>
-
-        {/* Shop */}
-        <Card className="bg-amber-700 border-amber-600 border-2 p-6 hover:bg-amber-600 transition">
-          <div className="flex items-center gap-3 mb-3">
-            <Coins className="text-yellow-500" size={24} />
-            <h2 className="text-2xl font-bold text-amber-100">The Shop</h2>
-          </div>
-          <p className="text-amber-200 mb-4">Buy weapons, armor, and potions.</p>
-          <Button
+          <Button 
             onClick={onVisitShop}
-            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
+            className="flex-1 h-full bg-slate-800 border-b-4 border-slate-950 font-bold text-amber-500 text-xs"
           >
-            Browse Shop
+            Shop
           </Button>
-        </Card>
-
-        {/* Character Sheet */}
-        <Card className="bg-amber-700 border-amber-600 border-2 p-6 hover:bg-amber-600 transition">
-          <div className="flex items-center gap-3 mb-3">
-            <MapPin className="text-green-400" size={24} />
-            <h2 className="text-2xl font-bold text-amber-100">Character</h2>
-          </div>
-          <p className="text-amber-200 mb-4">View your stats and equipment.</p>
-          <Button
+          <Button 
+            onClick={onRest}
+            className="flex-1 h-full bg-slate-800 border-b-4 border-slate-950 font-bold text-green-500 text-xs"
+          >
+            Rest
+          </Button>
+          <Button 
             onClick={() => setShowCharacter(true)}
-            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            className="flex-1 h-full bg-slate-800 border-b-4 border-slate-950 font-bold text-blue-400 text-xs"
           >
-            View Stats
+            Stats
           </Button>
-        </Card>
-      </div>
+        </div>
+      </footer>
 
-      {/* Character Sheet Dialog */}
+      {/* Character Sheet Dialog - Fullscreen Mobile Style */}
       <Dialog open={showCharacter} onOpenChange={setShowCharacter}>
-        <DialogContent className="bg-slate-700 border-amber-600 border-2 max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-amber-400">Character Sheet</DialogTitle>
+        <DialogContent className="bg-slate-900 border-slate-700 p-0 max-w-full h-[90dvh] flex flex-col">
+          <DialogHeader className="p-4 border-b border-slate-800">
+            <DialogTitle className="text-amber-500 font-black uppercase tracking-widest text-center">Hero Profile</DialogTitle>
           </DialogHeader>
-          <CharacterSheet character={player} />
+          <div className="flex-1 overflow-y-auto p-4">
+            <CharacterSheet character={player} />
+          </div>
+          <div className="p-4 border-t border-slate-800">
+            <Button onClick={() => setShowCharacter(false)} className="w-full bg-slate-800 text-white font-bold">Close</Button>
+          </div>
         </DialogContent>
       </Dialog>
-
-
     </div>
   );
 }
