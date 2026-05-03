@@ -20,13 +20,13 @@ export const useGameStore = create<GameState>()(
       })),
       addXP: (amount) => set((state) => {
         if (!state.player) return { player: null };
-        const newXP = state.player.experience + amount;
+        const newXP = state.player.exp + amount;
         // Basic level up logic: level up every 100 XP
         const newLevel = Math.floor(newXP / 100) + 1;
         return {
           player: { 
             ...state.player, 
-            experience: newXP, 
+            exp: newXP, 
             level: newLevel > state.player.level ? newLevel : state.player.level 
           }
         };
