@@ -1,5 +1,5 @@
 // AdventureQuest Remake - Game Engine
-// Classic turn-based RPG combat system
+// Optimized for Mobile APK with Haptic Feedback and Equipment Scaling
 
 export interface CharacterStats {
   str: number; // Strength - melee damage
@@ -53,7 +53,7 @@ export interface Spell {
   id: string;
   name: string;
   element: Element;
-  cost: number; // MP cost
+  cost: number;
   damage: number;
   accuracy: number;
   description: string;
@@ -99,8 +99,19 @@ export interface BattleState {
 export interface BattleAction {
   type: 'attack' | 'spell' | 'item' | 'defend' | 'run';
   target: 'player' | 'monster';
-  value?: string; // spell id or item id
+  value?: string;
 }
+
+/**
+ * Haptic Feedback Trigger for APK
+ * Leverages the browser vibration API which is supported by Capacitor.
+ */
+const triggerVibration = (intensity: 'light' | 'medium' | 'heavy') => {
+  if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
+    const ms = intensity === 'heavy' ? 100 : intensity === 'medium' ? 50 : 20;
+    navigator.vibrate(ms);
+  }
+};
 
 // Damage calculation
 export function calculateDamage(
@@ -177,8 +188,10 @@ export function processPlayerAction(
       if (critical) {
         damage = Math.floor(damage * 1.5);
         log = `${player.name} lands a CRITICAL HIT for ${damage} damage!`;
+        triggerVibration('heavy');
       } else {
         log = `${player.name} attacks for ${damage} damage!`;
+        triggerVibration('light');
       }
     } else {
       log = `${player.name}'s attack misses!`;
@@ -196,8 +209,10 @@ export function processPlayerAction(
         if (critical) {
           damage = Math.floor(damage * 1.5);
           log = `${player.name} casts ${spell.name} for CRITICAL ${damage} damage!`;
+          triggerVibration('heavy');
         } else {
           log = `${player.name} casts ${spell.name} for ${damage} damage!`;
+          triggerVibration('medium');
         }
       } else {
         log = `${spell.name} misses!`;
@@ -207,6 +222,7 @@ export function processPlayerAction(
     }
   } else if (action.type === 'defend') {
     log = `${player.name} takes a defensive stance!`;
+    triggerVibration('light');
   }
 
   return { damage, log, hit, critical };
@@ -229,6 +245,7 @@ export function processMonsterAction(
     if (hit) {
       damage = calculateDamage(monster, player, 'melee', 8);
       log = `${monster.name} attacks for ${damage} damage!`;
+      triggerVibration('medium');
     } else {
       log = `${monster.name}'s attack misses!`;
     }
@@ -239,6 +256,7 @@ export function processMonsterAction(
     if (hit) {
       damage = calculateDamage(monster, player, 'magic', 12);
       log = `${monster.name} casts a spell for ${damage} damage!`;
+      triggerVibration('medium');
     } else {
       log = `${monster.name}'s spell misses!`;
     }

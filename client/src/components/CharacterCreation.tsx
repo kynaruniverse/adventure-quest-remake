@@ -4,6 +4,7 @@ import { CharacterClass, CHARACTER_CLASSES } from '@/lib/characterClasses';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface CharacterCreationProps {
   onCharacterCreated: (character: Character, selectedClass: CharacterClass) => void;
@@ -31,122 +32,98 @@ export default function CharacterCreation({ onCharacterCreated }: CharacterCreat
     onCharacterCreated(newCharacter, selectedClass);
   };
 
-  const classDefinition = CHARACTER_CLASSES[selectedClass];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-4 flex items-center justify-center">
-      <div className="max-w-4xl w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-amber-600 drop-shadow-lg mb-2">AdventureQuest</h1>
-          <p className="text-amber-200 text-xl">Create Your Character</p>
+    <div className="h-full w-full flex flex-col bg-slate-950 font-sans select-none overflow-hidden">
+      {/* 1. STICKY HEADER (Always visible) */}
+      <header className="flex-none p-4 bg-slate-900 border-b-2 border-amber-600/50 z-30 shadow-2xl">
+        <div className="max-w-6xl mx-auto flex flex-row items-center justify-between gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl font-black text-amber-500 uppercase tracking-tighter leading-none">AdventureQuest</h1>
+            <p className="text-[10px] text-amber-200/60 uppercase font-bold tracking-widest">Character Creation</p>
+          </div>
+          
+          <div className="flex-1 max-w-sm">
+            <Input
+              type="text"
+              value={characterName}
+              onChange={(e) => setCharacterName(e.target.value)}
+              placeholder="Enter Name..."
+              className="h-10 bg-slate-800 border-amber-600/50 text-white font-bold"
+            />
+          </div>
         </div>
+      </header>
 
-        {/* Character Name Input */}
-        <Card className="bg-slate-700 border-amber-600 border-2 p-6 mb-8">
-          <label className="block text-amber-400 font-bold mb-2">Character Name</label>
-          <Input
-            type="text"
-            value={characterName}
-            onChange={(e) => setCharacterName(e.target.value)}
-            placeholder="Enter your character name"
-            className="bg-slate-600 border-amber-600 text-white placeholder-slate-400"
-          />
-        </Card>
+      {/* 2. SCROLLABLE MAIN CONTENT */}
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
+        <div className="max-w-6xl mx-auto">
+          
+          <h2 className="text-amber-400 font-black uppercase text-xs mb-4 tracking-widest text-center">Select Your Class</h2>
+          
+          {/* Class Selection Grid - Landscape optimized */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-24">
+            {(Object.keys(CHARACTER_CLASSES) as CharacterClass[]).map((classType) => {
+              const classDef = CHARACTER_CLASSES[classType];
+              const isSelected = selectedClass === classType;
 
-        {/* Class Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {(Object.keys(CHARACTER_CLASSES) as CharacterClass[]).map((classType) => {
-            const classDef = CHARACTER_CLASSES[classType];
-            const isSelected = selectedClass === classType;
+              return (
+                <Card
+                  key={classType}
+                  onClick={() => setSelectedClass(classType)}
+                  className={cn(
+                    "relative overflow-hidden cursor-pointer transition-all duration-200 border-2",
+                    isSelected
+                      ? 'bg-amber-600/20 border-amber-400 shadow-[0_0_15px_rgba(217,119,6,0.3)]'
+                      : 'bg-slate-900/50 border-slate-800 hover:border-amber-600/50'
+                  )}
+                >
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className={cn("text-xl font-black uppercase", isSelected ? 'text-white' : 'text-amber-500')}>
+                        {classDef.name}
+                      </h3>
+                      {isSelected && <span className="text-white text-xs font-black bg-amber-600 px-2 py-0.5 rounded">SELECTED</span>}
+                    </div>
 
-            return (
-              <Card
-                key={classType}
-                onClick={() => setSelectedClass(classType)}
-                className={`p-6 cursor-pointer transition border-2 ${
-                  isSelected
-                    ? 'bg-amber-600 border-amber-400 ring-2 ring-amber-300'
-                    : 'bg-slate-700 border-slate-600 hover:border-amber-600'
-                }`}
-              >
-                <h3 className={`text-2xl font-bold mb-2 ${isSelected ? 'text-white' : 'text-amber-400'}`}>
-                  {classDef.name}
-                </h3>
-                <p className={`text-sm mb-4 ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                  {classDef.description}
-                </p>
+                    <p className={cn("text-xs leading-relaxed mb-4 h-12 overflow-hidden", isSelected ? 'text-amber-100' : 'text-slate-400')}>
+                      {classDef.description}
+                    </p>
 
-                {/* Stats Preview */}
-                <div className={`text-xs space-y-1 mb-4 ${isSelected ? 'text-white' : 'text-slate-400'}`}>
-                  <div>STR: {classDef.baseStats.str}</div>
-                  <div>DEX: {classDef.baseStats.dex}</div>
-                  <div>INT: {classDef.baseStats.int}</div>
-                  <div>END: {classDef.baseStats.end}</div>
-                </div>
+                    {/* Compact Stats Row */}
+                    <div className="flex flex-row justify-between gap-1 mb-4">
+                      {['str', 'dex', 'int', 'end'].map((stat) => (
+                        <div key={stat} className="flex-1 bg-slate-950/50 p-1 rounded border border-slate-800 text-center">
+                          <p className="text-[8px] text-slate-500 uppercase font-bold">{stat}</p>
+                          <p className="text-xs text-white font-black">{classDef.baseStats[stat as keyof typeof classDef.baseStats]}</p>
+                        </div>
+                      ))}
+                    </div>
 
-                {/* Class Ability */}
-                <div className={`border-t ${isSelected ? 'border-white' : 'border-slate-600'} pt-3`}>
-                  <p className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-amber-300'}`}>
-                    {classDef.classAbility.name}
-                  </p>
-                  <p className={`text-xs ${isSelected ? 'text-white' : 'text-slate-400'}`}>
-                    {classDef.classAbility.effect}
-                  </p>
-                </div>
-
-                {isSelected && (
-                  <div className="mt-4 text-center">
-                    <p className="text-white font-bold text-lg">✓ Selected</p>
+                    {/* Class Ability Box */}
+                    <div className={cn("p-2 rounded border", isSelected ? 'bg-amber-500/20 border-amber-400/50' : 'bg-slate-950 border-slate-800')}>
+                      <p className="text-[10px] font-black text-amber-400 uppercase leading-none mb-1">{classDef.classAbility.name}</p>
+                      <p className="text-[9px] text-slate-300 leading-tight">{classDef.classAbility.effect}</p>
+                    </div>
                   </div>
-                )}
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })}
+          </div>
         </div>
+      </main>
 
-        {/* Class Details */}
-        <Card className="bg-slate-700 border-amber-600 border-2 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-amber-400 mb-4">{classDefinition.name} Details</h2>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-amber-300 font-bold mb-2">Base Stats</p>
-              <div className="text-sm text-slate-300 space-y-1">
-                <div>STR: {classDefinition.baseStats.str}</div>
-                <div>DEX: {classDefinition.baseStats.dex}</div>
-                <div>INT: {classDefinition.baseStats.int}</div>
-                <div>END: {classDefinition.baseStats.end}</div>
-                <div>CHA: {classDefinition.baseStats.cha}</div>
-                <div>LUK: {classDefinition.baseStats.luk}</div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-amber-300 font-bold mb-2">Starting Spells</p>
-              <div className="text-sm text-slate-300 space-y-1">
-                {classDefinition.startingSpells.map((spell) => (
-                  <div key={spell.id}>{spell.name} ({spell.cost} MP)</div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-amber-300 font-bold mb-2">Class Ability: {classDefinition.classAbility.name}</p>
-            <p className="text-slate-300 text-sm mb-1">{classDefinition.classAbility.description}</p>
-            <p className="text-amber-200 text-sm font-bold">{classDefinition.classAbility.effect}</p>
-          </div>
-        </Card>
-
-        {/* Create Button */}
-        <Button
-          onClick={handleCreateCharacter}
-          className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 text-lg"
-        >
-          Create Character
-        </Button>
-      </div>
+      {/* 3. STICKY FOOTER (The "Select" Button) */}
+      <footer className="flex-none p-4 bg-slate-900 border-t-2 border-slate-800 z-30">
+        <div className="max-w-xl mx-auto">
+          <Button
+            onClick={handleCreateCharacter}
+            variant="retro"
+            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-black uppercase text-xl py-8 shadow-[0_6px_0_0_#92400e] active:shadow-none active:translate-y-1 transition-all"
+          >
+            Confirm {CHARACTER_CLASSES[selectedClass].name}
+          </Button>
+        </div>
+      </footer>
     </div>
   );
 }
