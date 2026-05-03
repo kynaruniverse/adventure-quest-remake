@@ -34,7 +34,6 @@ const buttonVariants = cva(
   }
 );
 
-
 function Button({
   className,
   variant,
@@ -45,6 +44,15 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {
+  
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Subtle haptic pulse for the APK
+    if (typeof window !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+    if (props.onClick) props.onClick(e);
+  };
+
   const Comp = asChild ? Slot : "button";
 
   return (
@@ -52,6 +60,7 @@ function Button({
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
+      onClick={handleClick}
     />
   );
 }
