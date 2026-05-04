@@ -12,12 +12,10 @@ import GameManager from "./components/GameManager";
 function App() {
   return (
     <ErrorBoundary>
-        <TooltipProvider>
           <Toaster position="top-center" richColors />
           <div className="h-screen w-screen overflow-hidden bg-slate-950 font-sans">
             <GameManager />
           </div>
-        </TooltipProvider>
     </ErrorBoundary>
   );
 }
