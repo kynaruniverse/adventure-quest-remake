@@ -11,10 +11,13 @@ export interface MapNode {
   name: string;
   type: NodeType;
   level: number;
-  enemyLevel?: number;
+
+  difficulty?: number;
+
   unlocked: boolean;
   completed: boolean;
-  connections: string[]; // adjacent nodes
+
+  connections: string[];
 }
 
 export interface Region {

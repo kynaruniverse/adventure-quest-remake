@@ -1,9 +1,6 @@
 {
-  "appId": "com.battleon.remake",
+  "appId": "com.adventurequest.remake",
   "appName": "AdventureQuest Remake",
   "webDir": "dist",
-  "bundledWebRuntime": false,
-  "server": {
-    "androidScheme": "https"
-  }
+  "bundledWebRuntime": false
 }

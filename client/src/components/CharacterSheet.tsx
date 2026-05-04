@@ -1,10 +1,40 @@
-import { Character } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createDefaultPlayer } from "@/lib/characterFactory";
+
+type Character = ReturnType<typeof createDefaultPlayer> & {
+  equipment?: {
+    weapon?: string;
+    armor?: string;
+    shield?: string;
+  };
+  items?: Array<{
+    id: string;
+    name: string;
+    effect: string;
+    quantity: number;
+  }>;
+  spells?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    cost: number;
+    damage: number;
+  }>;
+};
 
 interface CharacterSheetProps {
   character: Character;
 }
+
+const STAT_KEYS = [
+  "str",
+  "dex",
+  "int",
+  "end",
+  "cha",
+  "luk",
+] as const;
 
 export default function CharacterSheet({ character }: CharacterSheetProps) {
   return (
@@ -14,20 +44,12 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
 
         {/* NAV */}
         <TabsList className="grid w-full grid-cols-3 bg-slate-700 border-2 border-amber-600">
-          <TabsTrigger value="stats" className="text-amber-400 data-[state=active]:bg-amber-600">
-            Stats
-          </TabsTrigger>
-          <TabsTrigger value="equipment" className="text-amber-400 data-[state=active]:bg-amber-600">
-            Equipment
-          </TabsTrigger>
-          <TabsTrigger value="inventory" className="text-amber-400 data-[state=active]:bg-amber-600">
-            Inventory
-          </TabsTrigger>
+          <TabsTrigger value="stats">Stats</TabsTrigger>
+          <TabsTrigger value="equipment">Equipment</TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
         </TabsList>
 
-        {/* ===================== */}
-        {/* STATS TAB */}
-        {/* ===================== */}
+        {/* ================= STATS ================= */}
         <TabsContent value="stats">
           <Card className="bg-slate-700 border-amber-600 border-2 p-6">
 
@@ -76,30 +98,27 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
 
               <div className="grid grid-cols-3 gap-3">
 
-                {[
-                  ["STR", "red-400"],
-                  ["DEX", "green-400"],
-                  ["INT", "blue-400"],
-                  ["END", "orange-400"],
-                  ["CHA", "purple-400"],
-                  ["LUK", "yellow-400"],
-                ].map(([key, color]) => (
+                {STAT_KEYS.map((key) => (
                   <div key={key} className="bg-slate-600 p-3 rounded text-center">
-                    <p className="text-slate-300 text-xs">{key}</p>
-                    <p className={`text-xl font-bold text-${color}`}>
-                      {character.stats[key.toLowerCase() as keyof typeof character.stats]}
+
+                    <p className="text-slate-300 text-xs uppercase">
+                      {key}
                     </p>
+
+                    <p className="text-xl font-bold text-amber-300">
+                      {character.stats[key]}
+                    </p>
+
                   </div>
                 ))}
 
               </div>
             </div>
+
           </Card>
         </TabsContent>
 
-        {/* ===================== */}
-        {/* EQUIPMENT TAB */}
-        {/* ===================== */}
+        {/* ================= EQUIPMENT ================= */}
         <TabsContent value="equipment">
           <Card className="bg-slate-700 border-amber-600 border-2 p-6">
 
@@ -110,24 +129,15 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
             <div className="space-y-3">
 
               <div className="bg-slate-600 p-4 rounded">
-                <p className="text-slate-300 text-sm">Weapon</p>
-                <p className="text-lg font-bold text-amber-300">
-                  {character.equipment.weapon || "None"}
-                </p>
+                Weapon: {character.equipment?.weapon ?? "None"}
               </div>
 
               <div className="bg-slate-600 p-4 rounded">
-                <p className="text-slate-300 text-sm">Armor</p>
-                <p className="text-lg font-bold text-amber-300">
-                  {character.equipment.armor || "None"}
-                </p>
+                Armor: {character.equipment?.armor ?? "None"}
               </div>
 
               <div className="bg-slate-600 p-4 rounded">
-                <p className="text-slate-300 text-sm">Shield</p>
-                <p className="text-lg font-bold text-amber-300">
-                  {character.equipment.shield || "None"}
-                </p>
+                Shield: {character.equipment?.shield ?? "None"}
               </div>
 
             </div>
@@ -135,9 +145,7 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
           </Card>
         </TabsContent>
 
-        {/* ===================== */}
-        {/* INVENTORY TAB */}
-        {/* ===================== */}
+        {/* ================= INVENTORY ================= */}
         <TabsContent value="inventory">
           <Card className="bg-slate-700 border-amber-600 border-2 p-6">
 
@@ -145,34 +153,30 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
               Inventory
             </h3>
 
-            <div className="space-y-2">
+            {(character.items?.length ?? 0) > 0 ? (
+              character.items!.map((item) => (
+                <div key={item.id} className="bg-slate-600 p-3 rounded flex justify-between mb-2">
 
-              {(character.items ?? []).length > 0 ? (
-                character.items.map((item) => (
-                  <div key={item.id} className="bg-slate-600 p-3 rounded flex justify-between">
-
-                    <div>
-                      <p className="font-bold text-amber-300">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {item.effect}
-                      </p>
-                    </div>
-
-                    <p className="text-amber-400 font-bold">
-                      x{item.quantity}
+                  <div>
+                    <p className="font-bold text-amber-300">
+                      {item.name}
                     </p>
-
+                    <p className="text-xs text-slate-400">
+                      {item.effect}
+                    </p>
                   </div>
-                ))
-              ) : (
-                <p className="text-slate-400 text-center py-4">
-                  No items
-                </p>
-              )}
 
-            </div>
+                  <p className="text-amber-400 font-bold">
+                    x{item.quantity}
+                  </p>
+
+                </div>
+              ))
+            ) : (
+              <p className="text-slate-400 text-center py-4">
+                No items
+              </p>
+            )}
 
             {/* SPELLS */}
             <div className="mt-6">
@@ -181,37 +185,20 @@ export default function CharacterSheet({ character }: CharacterSheetProps) {
                 Spells
               </h4>
 
-              <div className="space-y-2">
+              {(character.spells ?? []).map((spell) => (
+                <div key={spell.id} className="bg-slate-600 p-3 rounded mb-2">
 
-                {(character.spells ?? []).map((spell) => (
-                  <div key={spell.id} className="bg-slate-600 p-3 rounded">
+                  <p className="font-bold text-blue-300">
+                    {spell.name}
+                  </p>
 
-                    <div className="flex justify-between items-start">
+                  <p className="text-xs text-slate-400">
+                    {spell.description}
+                  </p>
 
-                      <div>
-                        <p className="font-bold text-blue-300">
-                          {spell.name}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {spell.description}
-                        </p>
-                      </div>
+                </div>
+              ))}
 
-                      <div className="text-right">
-                        <p className="text-xs text-slate-300">
-                          Cost: {spell.cost} MP
-                        </p>
-                        <p className="text-xs text-slate-300">
-                          Dmg: {spell.damage}
-                        </p>
-                      </div>
-
-                    </div>
-
-                  </div>
-                ))}
-
-              </div>
             </div>
 
           </Card>

@@ -1,5 +1,10 @@
 import { CHARACTER_CLASSES, CharacterClass } from "./characterClasses";
-import { Pet } from "./combatTypes";
+
+/**
+ * =========================
+ * CORE PLAYER TYPE
+ * =========================
+ */
 
 export type Player = {
   id: string;
@@ -25,10 +30,48 @@ export type Player = {
 
   gold: number;
 
-  pet: Pet;
+  // 🧠 runtime systems (Effect Engine ready)
+  effects?: any[];
+  defending?: boolean;
+  speed?: number;
+
+  pet?: any;
 };
 
+/**
+ * =========================
+ * BASE STAT HELPERS
+ * =========================
+ */
+
+function buildBaseStats() {
+  return {
+    str: 10,
+    dex: 10,
+    int: 10,
+    end: 10,
+    cha: 10,
+    luk: 10,
+  };
+}
+
+function buildResources(stats: Player["stats"]) {
+  const hp = 50 + stats.end * 2;
+  const mp = 30 + stats.int * 2;
+
+  return { hp, mp };
+}
+
+/**
+ * =========================
+ * DEFAULT PLAYER
+ * =========================
+ */
+
 export function createDefaultPlayer(): Player {
+  const stats = buildBaseStats();
+  const { hp, mp } = buildResources(stats);
+
   return {
     id: "player-1",
     name: "Adventurer",
@@ -36,38 +79,28 @@ export function createDefaultPlayer(): Player {
     level: 1,
     exp: 0,
 
-    stats: {
-      str: 10,
-      dex: 10,
-      int: 10,
-      end: 10,
-      cha: 10,
-      luk: 10,
-    },
+    stats,
 
-    hp: 50,
-    maxHp: 50,
+    hp,
+    maxHp: hp,
 
-    mp: 30,
-    maxMp: 30,
+    mp,
+    maxMp: mp,
 
     gold: 100,
 
-    pet: {
-      name: "Sprig",
-      level: 1,
-      xp: 0,
-      maxXp: 10,
-
-      type: "offensive",
-
-      stats: {
-        attack: 4,
-        defense: 2,
-      },
-    },
+    // 🧠 engine defaults
+    effects: [],
+    defending: false,
+    speed: 10,
   };
 }
+
+/**
+ * =========================
+ * CLASS-BASED CREATION
+ * =========================
+ */
 
 export function createPlayerFromClass(
   name: string,
@@ -75,8 +108,8 @@ export function createPlayerFromClass(
 ): Player {
   const classDef = CHARACTER_CLASSES[selectedClass];
 
-  const baseHp = 50 + classDef.baseStats.end * 2;
-  const baseMp = 30 + classDef.baseStats.int * 2;
+  const stats = { ...classDef.baseStats };
+  const { hp, mp } = buildResources(stats);
 
   return {
     id: "player-1",
@@ -85,28 +118,19 @@ export function createPlayerFromClass(
     level: 1,
     exp: 0,
 
-    stats: { ...classDef.baseStats },
+    stats,
 
-    hp: baseHp,
-    maxHp: baseHp,
+    hp,
+    maxHp: hp,
 
-    mp: baseMp,
-    maxMp: baseMp,
+    mp,
+    maxMp: mp,
 
     gold: 100,
 
-    pet: {
-      name: "Sprig",
-      level: 1,
-      xp: 0,
-      maxXp: 10,
-
-      type: "offensive",
-
-      stats: {
-        attack: 4,
-        defense: 2,
-      },
-    },
+    // 🧠 engine defaults
+    effects: [],
+    defending: false,
+    speed: 10,
   };
 }

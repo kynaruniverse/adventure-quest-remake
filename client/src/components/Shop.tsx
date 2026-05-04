@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Player } from "@/lib/characterFactory";
-import { Weapon, Armor } from "@/lib/gameData";
+import { useGameStore } from "@/store/useGameStore";
+import { WEAPONS, ARMORS } from "@/lib/gameData";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -12,26 +12,27 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-interface ShopProps {
-  player: Player;
-  weapons: Weapon[];
-  armors: Armor[];
-  onPurchaseWeapon: (weaponId: string) => void;
-  onPurchaseArmor: (armorId: string) => void;
-  onBack: () => void;
-}
+export default function Shop() {
+  const player = useGameStore((s) => s.player);
+  const setScreen = useGameStore((s) => s.setScreen);
 
-export default function Shop({
-  player,
-  weapons,
-  armors,
-  onPurchaseWeapon,
-  onPurchaseArmor,
-  onBack,
-}: ShopProps) {
+  const weapons = Object.values(WEAPONS);
+  const armors = Object.values(ARMORS);
+
   const [selectedTab, setSelectedTab] = useState<
     "weapons" | "armor"
   >("weapons");
+
+  const onBack = () => setScreen("town");
+
+  // TEMP HANDLERS (replace later with real inventory system)
+  const onPurchaseWeapon = (id: string) => {
+    console.log("Buy weapon:", id);
+  };
+
+  const onPurchaseArmor = (id: string) => {
+    console.log("Buy armor:", id);
+  };
 
   return (
     <div className="h-full w-full flex flex-row overflow-hidden bg-slate-950 font-sans select-none p-2 gap-2">
@@ -109,40 +110,24 @@ export default function Shop({
           </p>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-3">
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
           {(selectedTab === "weapons"
             ? weapons
             : armors
           ).map((item) => {
             const isWeapon = "damage" in item;
-            const canAfford =
-              player.gold >= item.price;
-            const isEquipped = isWeapon
-              ? player.equipment.weapon === item.id
-              : player.equipment.armor === item.id;
-            const levelLocked =
-              player.level < item.level;
+            const canAfford = player.gold >= item.price;
+
+            const levelLocked = player.level < item.level;
 
             return (
               <Card
                 key={item.id}
-                className={cn(
-                  "p-0 overflow-hidden border-2 transition-all",
-                  isEquipped
-                    ? "bg-green-900/20 border-green-500/50"
-                    : "bg-slate-800 border-slate-700"
-                )}
+                className="p-0 overflow-hidden border-2 bg-slate-800 border-slate-700"
               >
                 <div className="flex">
                   <div className="w-16 bg-slate-950/50 flex items-center justify-center border-r border-slate-700/50">
-                    <ShoppingCart
-                      className={cn(
-                        "size-6",
-                        isEquipped
-                          ? "text-green-500"
-                          : "text-slate-600"
-                      )}
-                    />
+                    <ShoppingCart className="size-6 text-slate-600" />
                   </div>
 
                   <div className="flex-1 p-3">
@@ -156,11 +141,7 @@ export default function Shop({
                           ? onPurchaseWeapon(item.id)
                           : onPurchaseArmor(item.id)
                       }
-                      disabled={
-                        !canAfford ||
-                        isEquipped ||
-                        levelLocked
-                      }
+                      disabled={!canAfford || levelLocked}
                       className="w-full mt-2"
                     >
                       Buy

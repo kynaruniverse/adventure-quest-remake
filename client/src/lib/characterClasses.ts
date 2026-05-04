@@ -1,20 +1,65 @@
-import { CharacterStats, Spell } from "./combatTypes";
+import { CharacterStats, Spell, Element } from "./combatTypes";
+
+/**
+ * =========================
+ * CORE TYPES
+ * =========================
+ */
 
 export type CharacterClass = "warrior" | "mage" | "ranger";
+
+/**
+ * Structured effect system (ENGINE READY)
+ */
+export type EffectDefinition =
+  | {
+      type: "statModifier";
+      target: keyof CharacterStats;
+      multiplier?: number;
+      flatBonus?: number;
+      duration: number;
+      trigger: "onAttack" | "onTurn" | "passive";
+    }
+  | {
+      type: "extraAttacks";
+      count: number;
+      damageMultiplier: number;
+      duration: number;
+      trigger: "onAttack";
+    }
+  | {
+      type: "critBoost";
+      chanceBonus: number;
+      duration: number;
+      trigger: "onAttack";
+    };
+
+/**
+ * =========================
+ * CLASS DEFINITION
+ * =========================
+ */
 
 export interface ClassDefinition {
   name: string;
   description: string;
 
   baseStats: CharacterStats;
-  startingSpells: Spell[];
+
+  startingSpells: string[]; // references to SPELLS registry
 
   classAbility: {
     name: string;
     description: string;
-    effect: string;
+    effect: EffectDefinition;
   };
 }
+
+/**
+ * =========================
+ * CLASSES
+ * =========================
+ */
 
 export const CHARACTER_CLASSES: Record<
   CharacterClass,
@@ -33,31 +78,18 @@ export const CHARACTER_CLASSES: Record<
       luk: 8,
     },
 
-    startingSpells: [
-      {
-        id: "slash",
-        name: "Power Slash",
-        element: "earth",
-        cost: 5,
-        damage: 25,
-        accuracy: 90,
-        description: "A powerful melee attack.",
-      },
-      {
-        id: "shield_bash",
-        name: "Shield Bash",
-        element: "earth",
-        cost: 8,
-        damage: 15,
-        accuracy: 95,
-        description: "Bash with your shield.",
-      },
-    ],
+    startingSpells: ["slash", "shield_bash"],
 
     classAbility: {
       name: "Berserker Rage",
       description: "Temporarily increase damage output",
-      effect: "+50% damage for 3 turns",
+      effect: {
+        type: "statModifier",
+        target: "str",
+        multiplier: 1.5,
+        duration: 3,
+        trigger: "onAttack",
+      },
     },
   },
 
@@ -74,40 +106,19 @@ export const CHARACTER_CLASSES: Record<
       luk: 10,
     },
 
-    startingSpells: [
-      {
-        id: "fireball",
-        name: "Fireball",
-        element: "fire",
-        cost: 15,
-        damage: 20,
-        accuracy: 85,
-        description: "Hurl a ball of fire.",
-      },
-      {
-        id: "mana_shield",
-        name: "Mana Shield",
-        element: "energy",
-        cost: 12,
-        damage: 0,
-        accuracy: 100,
-        description: "Protect yourself with magic.",
-      },
-      {
-        id: "heal",
-        name: "Heal",
-        element: "light",
-        cost: 10,
-        damage: 0,
-        accuracy: 100,
-        description: "Restore your health.",
-      },
-    ],
+    startingSpells: ["fireball", "mana_shield", "heal"],
 
     classAbility: {
       name: "Spell Amplify",
       description: "Increase spell power",
-      effect: "+30% spell damage for 3 turns",
+
+      effect: {
+        type: "statModifier",
+        target: "int",
+        multiplier: 1.3,
+        duration: 3,
+        trigger: "onAttack",
+      },
     },
   },
 
@@ -124,34 +135,28 @@ export const CHARACTER_CLASSES: Record<
       luk: 14,
     },
 
-    startingSpells: [
-      {
-        id: "piercing_shot",
-        name: "Piercing Shot",
-        element: "wind",
-        cost: 8,
-        damage: 18,
-        accuracy: 92,
-        description: "A precise ranged attack.",
-      },
-      {
-        id: "multi_shot",
-        name: "Multi-Shot",
-        element: "wind",
-        cost: 12,
-        damage: 15,
-        accuracy: 85,
-        description: "Fire multiple arrows.",
-      },
-    ],
+    startingSpells: ["piercing_shot", "multi_shot"],
 
     classAbility: {
       name: "Rapid Fire",
       description: "Attack multiple times",
-      effect: "2 extra attacks at reduced damage",
+
+      effect: {
+        type: "extraAttacks",
+        count: 2,
+        damageMultiplier: 0.6,
+        duration: 1,
+        trigger: "onAttack",
+      },
     },
   },
 };
+
+/**
+ * =========================
+ * HELPERS
+ * =========================
+ */
 
 export function getClassDefinition(type: CharacterClass) {
   return CHARACTER_CLASSES[type];

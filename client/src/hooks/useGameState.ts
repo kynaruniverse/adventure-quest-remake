@@ -8,11 +8,11 @@ export function useGameState() {
   const [player, setPlayer] = useState<Character>(createDefaultPlayer());
 
   const goToBattle = useCallback(() => {
-    setScreen('battle');
+    pushScene({ type: "battle" });
   }, []);
 
   const goToTown = useCallback(() => {
-    setScreen('town');
+    clearScenes();
   }, []);
 
   const restAtInn = useCallback(() => {

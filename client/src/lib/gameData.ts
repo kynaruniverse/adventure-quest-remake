@@ -4,8 +4,13 @@ export const SPELLS = {
     name: "Fireball",
     element: "fire",
     cost: 15,
-    damage: 20,
-    accuracy: 85,
+
+    effect: {
+      type: "damage",
+      value: 20,
+      accuracy: 85,
+    },
+
     description: "Hurl a ball of fire at your enemy.",
   },
 
@@ -14,18 +19,33 @@ export const SPELLS = {
     name: "Heal",
     element: "light",
     cost: 10,
-    damage: 0,
-    accuracy: 100,
+
+    effect: {
+      type: "heal",
+      value: 25,
+      accuracy: 100,
+    },
+
     description: "Restore your health.",
   },
 
   frostbolt: {
     id: "frostbolt",
     name: "Frostbolt",
-    element: "ice",
+    element: "water", // FIXED (was "ice")
+
     cost: 12,
-    damage: 18,
-    accuracy: 88,
+
+    effect: {
+      type: "damage",
+      value: 18,
+      accuracy: 88,
+      status: {
+        type: "slow",
+        duration: 2,
+      },
+    },
+
     description: "Launch a bolt of ice at your enemy.",
   },
 };
@@ -36,8 +56,12 @@ export const WEAPONS = {
     name: "Iron Sword",
     type: "melee",
     element: "earth",
-    damage: 10,
-    accuracy: 85,
+
+    effect: {
+      flatDamage: 10,
+      accuracyBonus: 0,
+    },
+
     level: 1,
     price: 50,
   },
@@ -47,8 +71,12 @@ export const WEAPONS = {
     name: "Wooden Bow",
     type: "ranged",
     element: "wind",
-    damage: 8,
-    accuracy: 80,
+
+    effect: {
+      flatDamage: 8,
+      accuracyBonus: 5,
+    },
+
     level: 1,
     price: 40,
   },
@@ -57,9 +85,13 @@ export const WEAPONS = {
     id: "staff_1",
     name: "Mage Staff",
     type: "magic",
-    element: "energy",
-    damage: 12,
-    accuracy: 85,
+    element: "light",
+
+    effect: {
+      flatDamage: 12,
+      accuracyBonus: 0,
+    },
+
     level: 1,
     price: 60,
   },
@@ -70,6 +102,11 @@ export const ARMORS = {
     id: "leather_1",
     name: "Leather Armor",
     defense: 5,
+
+    effect: {
+      damageTakenMultiplier: 0.95,
+    },
+
     level: 1,
     price: 30,
   },
@@ -78,6 +115,11 @@ export const ARMORS = {
     id: "chain_1",
     name: "Chain Mail",
     defense: 10,
+
+    effect: {
+      damageTakenMultiplier: 0.9,
+    },
+
     level: 5,
     price: 100,
   },
@@ -88,8 +130,12 @@ export type Weapon = {
   name: string;
   type: "melee" | "ranged" | "magic";
   element: string;
-  damage: number;
-  accuracy: number;
+
+  effect: {
+    flatDamage?: number;
+    accuracyBonus?: number;
+  };
+
   level: number;
   price: number;
 };
@@ -98,6 +144,11 @@ export type Armor = {
   id: string;
   name: string;
   defense: number;
+
+  effect: {
+    damageTakenMultiplier?: number;
+  };
+
   level: number;
   price: number;
 };

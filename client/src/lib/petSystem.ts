@@ -1,10 +1,17 @@
 import { Pet } from "./petTypes";
-import { Character, Monster } from "./gameEngine";
 
-export function applyPetPassive(player: Character, pet?: Pet): Character {
+/**
+ * =========================
+ * PET PASSIVE APPLICATION
+ * =========================
+ *
+ * Converts pet stats into EFFECT ENGINE modifiers.
+ * No direct mutation of character stats long-term.
+ */
+
+export function applyPetPassive(player: any, pet?: Pet) {
   if (!pet) return player;
 
-  // NOTE: still simple scaling, but isolated cleanly
   const strBonus = Math.floor(pet.stats.power / 5);
   const lukBonus = Math.floor(pet.stats.agility / 10);
 
@@ -18,46 +25,74 @@ export function applyPetPassive(player: Character, pet?: Pet): Character {
   };
 }
 
-export function triggerPetEffect(
+/**
+ * =========================
+ * PET EFFECT ENGINE
+ * =========================
+ *
+ * Unified trigger system for all pet abilities.
+ */
+
+export type PetEvent =
+  | "onAttack"
+  | "onHit"
+  | "onKill"
+  | "onTurn";
+
+export type PetContext = {
+  player: any;
+  enemy: any;
+  event: PetEvent;
+};
+
+export function triggerPetEffects(
   pet: Pet,
-  context: {
-    player: Character;
-    enemy: Monster;
-    event: "attack" | "hitTaken" | "kill";
-  }
-): { damageBonus: number; log?: string } {
+  context: PetContext
+): { damageBonus: number; logs: string[] } {
+  if (!pet) return { damageBonus: 0, logs: [] };
+
+  const logs: string[] = [];
+  let damageBonus = 0;
+
+  /**
+   * SINGLE ABILITY MODEL (clean + predictable)
+   */
   const ability = pet.ability;
 
-  if (!ability) return { damageBonus: 0 };
+  if (!ability) return { damageBonus: 0, logs };
 
-  switch (context.event) {
-    case "attack":
-      if (ability.trigger === "onAttack") {
-        return {
-          damageBonus: pet.stats.power,
-          log: `${pet.name} triggers ${ability.name}!`,
-        };
-      }
+  if (ability.trigger !== context.event) {
+    return { damageBonus: 0, logs };
+  }
+
+  switch (ability.effect.type) {
+    case "damageBonus":
+      damageBonus += ability.effect.value;
+
+      logs.push(
+        `${pet.name} triggers ${ability.name} (+${ability.effect.value} dmg)`
+      );
       break;
 
-    case "hitTaken":
-      if (ability.trigger === "onHit") {
-        return {
-          damageBonus: 0,
-          log: `${pet.name} reacts: ${ability.name}!`,
-        };
-      }
+    case "heal":
+      logs.push(`${pet.name} triggers ${ability.name} (heal)`);
       break;
 
-    case "kill":
-      if (ability.trigger === "onKill") {
-        return {
-          damageBonus: 0,
-          log: `${pet.name} celebrates: ${ability.name}!`,
-        };
-      }
+    case "statBuff":
+      logs.push(`${pet.name} triggers ${ability.name} (buff)`);
+      break;
+
+    case "shield":
+      logs.push(`${pet.name} triggers ${ability.name} (shield)`);
+      break;
+
+    case "statusApply":
+      logs.push(`${pet.name} triggers ${ability.name} (status)`);
       break;
   }
 
-  return { damageBonus: 0 };
+  return {
+    damageBonus,
+    logs,
+  };
 }

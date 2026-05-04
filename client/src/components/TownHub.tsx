@@ -20,14 +20,14 @@ export default function TownHub() {
       <div className="flex flex-col gap-3 w-full max-w-xs">
 
         <button
-          onClick={() => setScreen("battle")}
+          onClick={() => pushScene({ type: "battle" })}
           className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold uppercase rounded"
         >
           ⚔ Start Battle
         </button>
 
         <button
-          onClick={() => setScreen("shop")}
+          onClick={() => pushScene({ type: "shop" })}
           className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold uppercase rounded"
         >
           🛒 Shop

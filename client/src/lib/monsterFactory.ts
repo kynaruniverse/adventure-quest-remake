@@ -7,16 +7,17 @@ export function createMonster(level: number) {
     { name: "Orc", baseHp: 28, baseDamage: 8, element: "earth" },
   ];
 
-  const t =
+  const template =
     templates[Math.floor(Math.random() * templates.length)];
 
-  const hp = t.baseHp + level * 3;
+  const hp = template.baseHp + level * 3;
 
   return {
     id: `monster-${Date.now()}`,
-    name: t.name,
+    name: template.name,
     level,
 
+    // 🧠 CORE COMBAT STATS (future effect system compatible)
     stats: {
       str: 8 + level,
       dex: 8 + level,
@@ -29,8 +30,12 @@ export function createMonster(level: number) {
     hp,
     maxHp: hp,
 
-    damage: t.baseDamage + level * 0.5,
+    // ⚠️ kept for now but will be phased into stats-based scaling later
+    baseDamage: template.baseDamage + level * 0.5,
 
-    element: t.element,
+    element: template.element,
+
+    // 🧠 future-proof hooks (for status effects / pets / gear systems)
+    effects: [],
   };
 }

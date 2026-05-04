@@ -1,33 +1,60 @@
 <!doctype html>
 <html lang="en">
-
   <head>
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"
+    />
+
+    <meta name="theme-color" content="#020617" />
+
     <title>AdventureQuest Remake</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       :root {
-        --font-display: 'Cinzel', serif;
-        --font-body: 'Lora', serif;
+        --font-display: "Cinzel", serif;
+        --font-body: "Lora", serif;
       }
-      body {
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #020617;
         font-family: var(--font-body);
       }
+
       h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-display);
+      }
+
+      /* Safe-area support (iOS notch, etc.) */
+      body {
+        padding:
+          env(safe-area-inset-top)
+          env(safe-area-inset-right)
+          env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
       }
     </style>
   </head>
 
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.tsx"></script>
-
   </body>
-
 </html>

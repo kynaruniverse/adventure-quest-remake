@@ -5,10 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import { createPlayerFromClass } from "@/lib/characterFactory";
-import { Character } from "@/lib/types"; // 👈 (recommended future move)
 
 interface CharacterCreationProps {
-  onCharacterCreated: (character: Character, selectedClass: CharacterClass) => void;
+  onCharacterCreated: (
+    character: ReturnType<typeof createPlayerFromClass>,
+    selectedClass: CharacterClass
+  ) => void;
 }
 
 export default function CharacterCreation({
@@ -31,11 +33,11 @@ export default function CharacterCreation({
 
   return (
     <div className="h-full w-full flex flex-col bg-slate-950 font-sans select-none overflow-hidden">
-      
+
       {/* HEADER */}
       <header className="flex-none p-4 bg-slate-900 border-b-2 border-amber-600/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          
+
           <div>
             <h1 className="text-2xl font-black text-amber-500 uppercase">
               AdventureQuest
@@ -53,6 +55,7 @@ export default function CharacterCreation({
               className="h-10 bg-slate-800 border-amber-600/50 text-white font-bold"
             />
           </div>
+
         </div>
       </header>
 
@@ -91,11 +94,9 @@ export default function CharacterCreation({
                     </p>
 
                     <div className="text-xs text-slate-300">
-                      STR {classDef.baseStats.str} | DEX{" "}
-                      {classDef.baseStats.dex} | INT{" "}
-                      {classDef.baseStats.int} | END{" "}
-                      {classDef.baseStats.end}
+                      STR {classDef.baseStats.str} | DEX {classDef.baseStats.dex} | INT {classDef.baseStats.int} | END {classDef.baseStats.end}
                     </div>
+
                   </Card>
                 );
               }

@@ -10,27 +10,30 @@ export default function BattleScreen() {
     playerTurn,
   } = useGameStore();
 
+  const isPlayerTurn = battleState === "player-turn";
+
   const handleAction = (action: string) => {
-    if (battleState !== "player-turn") return;
+    if (!isPlayerTurn) return;
     playerTurn(action);
   };
 
-  const petName = player.pet ? player.pet.name : "No Pet";
+  const pet = player.pet;
 
   return (
     <div className="flex flex-col h-full bg-slate-950 text-white p-3 gap-3">
 
-      {/* ENEMY */}
+      {/* ================= ENEMY ================= */}
       <div className="p-3 bg-slate-900 border border-slate-800 rounded">
         <h2 className="text-lg font-bold text-red-400">
           {enemy.name}
         </h2>
+
         <p className="text-sm text-slate-300">
           HP: {enemy.hp}
         </p>
       </div>
 
-      {/* BATTLE LOG */}
+      {/* ================= BATTLE LOG ================= */}
       <div className="flex-1 bg-black/40 border border-slate-800 rounded p-2 overflow-y-auto">
         {battleLog.length === 0 ? (
           <p className="text-xs text-slate-500">
@@ -45,19 +48,27 @@ export default function BattleScreen() {
         )}
       </div>
 
-      {/* PLAYER */}
+      {/* ================= PLAYER ================= */}
       <div className="p-3 bg-slate-900 border border-slate-800 rounded">
         <p className="font-bold text-green-400">
           HP: {player.hp}/{player.maxHp}
         </p>
+
         <p className="text-xs text-slate-400">
-          Pet: {petName}
+          Pet: {pet ? pet.name : "No Pet"}
         </p>
+
+        {pet && (
+          <p className="text-xs text-slate-500">
+            {pet.type} • Lv {pet.level}
+          </p>
+        )}
       </div>
 
-      {/* ACTIONS */}
-      {battleState === "player-turn" && (
+      {/* ================= ACTIONS ================= */}
+      {isPlayerTurn && (
         <div className="grid grid-cols-2 gap-2">
+
           <button
             onClick={() => handleAction("attack")}
             className="p-3 bg-red-600 rounded font-bold"
@@ -85,13 +96,14 @@ export default function BattleScreen() {
           >
             Pet
           </button>
+
         </div>
       )}
 
-      {/* END STATE */}
+      {/* ================= END STATE ================= */}
       {(battleState === "victory" || battleState === "defeat") && (
         <button
-          onClick={() => setScreen("town")}
+          onClick={() => useGameStore.getState().clearScenes()}
           className="p-3 bg-amber-600 font-bold rounded"
         >
           Return to Town
