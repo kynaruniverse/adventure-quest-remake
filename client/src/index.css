@@ -1,9 +1,23 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-/* =======================================================
-   ADVENTURE QUEST — GLOBAL STYLES
-   ======================================================= */
+@theme {
+  /* Define the custom colors used in your @apply rules */
+  --color-border: var(--border);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ring: var(--ring);
+
+  /* Define the animations/keyframes if they aren't standard */
+}
+
+:root {
+  /* Default Slate/Zinc style colors (Adjust these to match your game's vibe) */
+  --background: #020617;
+  --foreground: #f8fafc;
+  --border: #1e293b;
+  --ring: #3b82f6;
+}
 
 /* ─── MOBILE APP LOCKDOWN ──────────────────────────────── */
 html, body, #root {
