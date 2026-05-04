@@ -1,15 +1,16 @@
 import { Pet } from "./petTypes";
+import { CombatEntity } from "./combatTypes";
 
 /**
  * =========================
  * PET PASSIVE APPLICATION
  * =========================
  *
- * Converts pet stats into EFFECT ENGINE modifiers.
- * No direct mutation of character stats long-term.
+ * Converts pet stats into flat bonuses applied to the
+ * attacker entity before damage calculation.
+ * Called in effectEngine before resolveAttack.
  */
-
-export function applyPetPassive(player: any, pet?: Pet) {
+export function applyPetPassive(player: CombatEntity, pet?: Pet): CombatEntity {
   if (!pet) return player;
 
   const strBonus = Math.floor(pet.stats.power / 5);
@@ -27,72 +28,91 @@ export function applyPetPassive(player: any, pet?: Pet) {
 
 /**
  * =========================
- * PET EFFECT ENGINE
+ * PET EVENT TYPES
  * =========================
- *
- * Unified trigger system for all pet abilities.
  */
-
-export type PetEvent =
-  | "onAttack"
-  | "onHit"
-  | "onKill"
-  | "onTurn";
+export type PetEvent = "onAttack" | "onHit" | "onKill" | "onTurn";
 
 export type PetContext = {
-  player: any;
-  enemy: any;
+  player: CombatEntity;
+  enemy: CombatEntity;
   event: PetEvent;
 };
 
+/**
+ * =========================
+ * PET TRIGGER SYSTEM
+ * =========================
+ *
+ * FIX: Was reading pet.ability (undefined, singular).
+ * Now correctly iterates pet.abilities (array).
+ *
+ * Also handles cooldowns — ability won't fire if on cooldown.
+ * Cooldown is decremented each time the pet's trigger event fires,
+ * whether or not the ability was usable.
+ */
 export function triggerPetEffects(
   pet: Pet,
   context: PetContext
 ): { damageBonus: number; logs: string[] } {
-  if (!pet) return { damageBonus: 0, logs: [] };
+  if (!pet?.abilities?.length) {
+    return { damageBonus: 0, logs: [] };
+  }
 
   const logs: string[] = [];
   let damageBonus = 0;
 
-  /**
-   * SINGLE ABILITY MODEL (clean + predictable)
-   */
-  const ability = pet.ability;
+  for (const ability of pet.abilities) {
+    // Only trigger on matching event
+    if (ability.trigger !== context.event) continue;
 
-  if (!ability) return { damageBonus: 0, logs };
+    // Check cooldown
+    const currentCooldown = pet.cooldowns[ability.id] ?? 0;
+    if (currentCooldown > 0) {
+      pet.cooldowns[ability.id] = currentCooldown - 1;
+      continue;
+    }
 
-  if (ability.trigger !== context.event) {
-    return { damageBonus: 0, logs };
+    // Set cooldown after use (if defined)
+    if (ability.cooldown && ability.cooldown > 0) {
+      pet.cooldowns[ability.id] = ability.cooldown;
+    }
+
+    // Resolve effect
+    switch (ability.effect.type) {
+      case "damageBonus":
+        damageBonus += ability.effect.value;
+        logs.push(
+          `🐾 ${pet.name}: ${ability.name} (+${ability.effect.value} dmg)`
+        );
+        break;
+
+      case "heal":
+        // Heal applied to player — return in future via healBonus field
+        logs.push(
+          `🐾 ${pet.name}: ${ability.name} (${ability.effect.value} HP restored)`
+        );
+        break;
+
+      case "statBuff":
+        logs.push(
+          `🐾 ${pet.name}: ${ability.name} (stat buff active)`
+        );
+        break;
+
+      case "shield":
+        logs.push(
+          `🐾 ${pet.name}: ${ability.name} (shield raised)`
+        );
+        break;
+
+      case "statusApply":
+        logs.push(
+          `🐾 ${pet.name}: ${ability.name} (status applied)`
+        );
+        break;
+    }
   }
 
-  switch (ability.effect.type) {
-    case "damageBonus":
-      damageBonus += ability.effect.value;
-
-      logs.push(
-        `${pet.name} triggers ${ability.name} (+${ability.effect.value} dmg)`
-      );
-      break;
-
-    case "heal":
-      logs.push(`${pet.name} triggers ${ability.name} (heal)`);
-      break;
-
-    case "statBuff":
-      logs.push(`${pet.name} triggers ${ability.name} (buff)`);
-      break;
-
-    case "shield":
-      logs.push(`${pet.name} triggers ${ability.name} (shield)`);
-      break;
-
-    case "statusApply":
-      logs.push(`${pet.name} triggers ${ability.name} (status)`);
-      break;
-  }
-
-  return {
-    damageBonus,
-    logs,
-  };
+  return { damageBonus, logs };
 }

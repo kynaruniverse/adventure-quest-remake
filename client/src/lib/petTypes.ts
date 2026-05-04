@@ -1,98 +1,61 @@
-export type PetRarity = "common" | "rare" | "epic" | "legendary";
-
-export type PetElement =
-  | "fire"
-  | "water"
-  | "earth"
-  | "wind"
-  | "light"
-  | "darkness";
-
 /**
  * =========================
- * CORE PET STATS
+ * PET TYPES
  * =========================
+ *
+ * FIX BUG-03 (supporting): petSystem.ts was reading pet.ability (undefined).
+ * It now correctly reads pet.abilities (this array).
+ *
+ * ADDED: cooldowns map on Pet — tracks per-ability cooldown state.
+ * ADDED: PetAbility.id and PetAbility.cooldown fields (required by petSystem.ts).
+ * ADDED: PetAbility.description for CharacterSheet display.
  */
-export interface PetStats {
-  power: number;
-  defense: number;
-  agility: number;
-  loyalty: number;
-}
 
-/**
- * =========================
- * EFFECT SYSTEM CORE
- * =========================
- */
+import { PetType } from "./combatTypes";
+
+export type PetAbilityEffect =
+  | { type: "damageBonus";  value: number }
+  | { type: "heal";         value: number }
+  | { type: "statBuff";     stat: string; value: number }
+  | { type: "shield";       value: number }
+  | { type: "statusApply";  status: string; duration: number };
 
 export type PetTrigger =
   | "onAttack"
   | "onHit"
   | "onKill"
-  | "onTurn"
-  | "passive";
+  | "onTurn";
 
-export type PetEffectType =
-  | "damageBonus"
-  | "heal"
-  | "statBuff"
-  | "shield"
-  | "statusApply";
-
-export interface PetEffect {
-  type: PetEffectType;
-  value: number;
-  element?: PetElement;
-}
-
-/**
- * =========================
- * PET ABILITY SYSTEM
- * =========================
- */
-
-export interface PetAbility {
+export type PetAbility = {
   id: string;
   name: string;
   description: string;
-
   trigger: PetTrigger;
+  effect: PetAbilityEffect;
+  cooldown?: number;   // turns between uses (0 or undefined = no cooldown)
+};
 
-  effect: PetEffect;
+export type PetStats = {
+  power:   number;   // raw attack contribution
+  agility: number;   // initiative / dodge
+  defense: number;   // damage reduction
+  spirit:  number;   // MP / healing contribution
+};
 
-  cooldown?: number;
-}
-
-/**
- * =========================
- * PET ENTITY
- * =========================
- */
-
-export interface Pet {
+export type Pet = {
   id: string;
   name: string;
-
-  element: PetElement;
-  rarity: PetRarity;
-
+  species: string;
+  type: PetType;
   level: number;
   exp: number;
+  expToNextLevel: number;
 
   stats: PetStats;
 
-  /**
-   * 🧠 Now supports MULTIPLE abilities
-   */
+  // FIX BUG-03: petSystem.ts now reads `abilities` (was reading `ability`)
   abilities: PetAbility[];
 
-  /**
-   * runtime state hooks
-   */
-  bonded: boolean;
-
+  // Tracks current cooldown per ability.id — mutated by petSystem.ts
   cooldowns: Record<string, number>;
-
-  status: any[];
-}
+};

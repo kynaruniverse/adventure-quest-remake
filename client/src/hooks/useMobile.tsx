@@ -1,22 +1,29 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
+
+/**
+ * =========================
+ * useMobile HOOK
+ * =========================
+ *
+ * Returns true when viewport width is below the mobile breakpoint.
+ * Used to conditionally render layouts or disable certain UI.
+ */
 
 const MOBILE_BREAKPOINT = 768;
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(false);
+export function useMobile(): boolean {
+  const [isMobile, setIsMobile] = useState<boolean>(
+    () => window.innerWidth < MOBILE_BREAKPOINT
+  );
 
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-
+  useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
 
-    const onChange = () => {
-      setIsMobile(mql.matches);
-    };
+    function onChange(e: MediaQueryListEvent) {
+      setIsMobile(e.matches);
+    }
 
-    setIsMobile(mql.matches);
     mql.addEventListener("change", onChange);
-
     return () => mql.removeEventListener("change", onChange);
   }, []);
 

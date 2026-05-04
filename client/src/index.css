@@ -1,7 +1,11 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-/* MOBILE-APP LOCKDOWN */
+/* =======================================================
+   ADVENTURE QUEST — GLOBAL STYLES
+   ======================================================= */
+
+/* ─── MOBILE APP LOCKDOWN ──────────────────────────────── */
 html, body, #root {
   width: 100vw;
   height: 100vh;
@@ -40,7 +44,7 @@ html, body, #root {
   margin: 0 auto;
 }
 
-/* SCANLINE EFFECT */
+/* ─── SUBTLE SCANLINE EFFECT ───────────────────────────── */
 body::after {
   content: "";
   position: fixed;
@@ -55,35 +59,16 @@ body::after {
 
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.08;
+  opacity: 0.06;
 }
 
-/* CRT GLOW */
-@keyframes crt-glow {
-  0% { opacity: 0.92; }
-  50% { opacity: 1; }
-  100% { opacity: 0.92; }
-}
-
-#root {
-  animation: crt-glow 6s infinite ease-in-out;
-}
-
-/* RPG PANELS */
-.rpg-panel {
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(8px);
-  border: 2px solid #92400e;
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-}
-
-/* HEALTH BAR */
-.health-bar-shimmer {
+/* ─── SHIMMER ──────────────────────────────────────────── */
+.shimmer {
   position: relative;
   overflow: hidden;
 }
 
-.health-bar-shimmer::after {
+.shimmer::after {
   content: "";
   position: absolute;
   top: 0;
@@ -105,7 +90,40 @@ body::after {
   100% { left: 100%; }
 }
 
-/* BASE */
+/* ─── BATTLE FLASH ─────────────────────────────────────── */
+@keyframes battle-flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.battle-flash {
+  animation: battle-flash 0.3s ease-in-out;
+}
+
+/* ─── HP BAR PULSE (low HP warning) ───────────────────── */
+@keyframes hp-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+.hp-critical {
+  animation: hp-pulse 1.2s ease-in-out infinite;
+}
+
+/* ─── GLOW EFFECTS ─────────────────────────────────────── */
+.glow-amber {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.25);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+}
+
+.glow-violet {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+}
+
+/* ─── BASE LAYER ───────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -130,7 +148,7 @@ body::after {
   }
 }
 
-/* COMPONENTS */
+/* ─── COMPONENT LAYER ──────────────────────────────────── */
 @layer components {
   .container {
     width: 100%;
@@ -139,28 +157,33 @@ body::after {
   }
 }
 
-/* SCROLLBAR */
+/* ─── SCROLLBARS ───────────────────────────────────────── */
+/* Battle log */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #92400e;
+  background: #374151;
   border-radius: 10px;
 }
 
-/* IMAGES */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #92400e;
+}
+
+/* ─── IMAGES ───────────────────────────────────────────── */
 img {
   max-width: 100%;
   height: auto;
   object-fit: contain;
 }
 
-/* ULTRA-WIDE */
+/* ─── ULTRA-WIDE ───────────────────────────────────────── */
 @media (min-aspect-ratio: 2/1) {
   .game-container {
     max-width: 180vh;

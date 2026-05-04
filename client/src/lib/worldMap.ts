@@ -1,33 +1,39 @@
+/**
+ * =========================
+ * WORLD MAP TYPES
+ * =========================
+ *
+ * WorldMapScreen.tsx reads: node.level, node.name, node.completed,
+ * node.unlocked, node.connections.
+ *
+ * completeNode in useGameStore reads: node.connections.
+ */
+
 export type NodeType =
   | "battle"
-  | "elite"
   | "boss"
-  | "rest"
   | "shop"
-  | "event";
+  | "rest"
+  | "event"
+  | "start";
 
-export interface MapNode {
+export type WorldNode = {
   id: string;
   name: string;
   type: NodeType;
-  level: number;
-
-  difficulty?: number;
-
+  level: number;            // enemy level spawned for this node
+  connections: string[];    // IDs of nodes unlocked when this is completed
   unlocked: boolean;
   completed: boolean;
+  x?: number;               // optional for future visual map rendering
+  y?: number;
+};
 
-  connections: string[];
-}
-
-export interface Region {
+export type Region = {
   id: string;
   name: string;
   description: string;
-  recommendedLevel: number;
-
-  nodes: MapNode[];
-
-  bossNodeId: string;
-  unlocked: boolean;
-}
+  nodes: WorldNode[];
+  minLevel: number;
+  maxLevel: number;
+};

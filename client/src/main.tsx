@@ -1,26 +1,18 @@
-import React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-/**
- * =========================
- * ROOT ELEMENT SAFETY
- * =========================
- */
-const rootElement = document.getElementById("root");
+const root = document.getElementById("root");
 
-if (!rootElement) {
-  throw new Error("Root element (#root) not found in HTML");
+if (!root) {
+  throw new Error(
+    "[AdventureQuest] Root element #root not found. Check index.html."
+  );
 }
 
-/**
- * =========================
- * RENDER APP
- * =========================
- */
-createRoot(rootElement).render(
-  <React.StrictMode>
+createRoot(root).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 );

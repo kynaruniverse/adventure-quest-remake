@@ -1,163 +1,65 @@
-import { CharacterStats, Spell, Element } from "./combatTypes";
+import { CharacterStats } from "./combatTypes";
 
 /**
  * =========================
- * CORE TYPES
+ * CHARACTER CLASSES
  * =========================
+ *
+ * CharacterStats imported from combatTypes — single source of truth.
+ * Each class defines:
+ *   - baseStats        used by characterFactory.ts to build the player
+ *   - description      shown in CharacterCreation class card
+ *   - startingSpell    shown as a bonus hint on the stat preview
  */
 
-export type CharacterClass = "warrior" | "mage" | "ranger";
+export type CharacterClass =
+  | "Warrior"
+  | "Mage"
+  | "Ranger"
+  | "Rogue"
+  | "Paladin"
+  | "Shaman";
 
-/**
- * Structured effect system (ENGINE READY)
- */
-export type EffectDefinition =
-  | {
-      type: "statModifier";
-      target: keyof CharacterStats;
-      multiplier?: number;
-      flatBonus?: number;
-      duration: number;
-      trigger: "onAttack" | "onTurn" | "passive";
-    }
-  | {
-      type: "extraAttacks";
-      count: number;
-      damageMultiplier: number;
-      duration: number;
-      trigger: "onAttack";
-    }
-  | {
-      type: "critBoost";
-      chanceBonus: number;
-      duration: number;
-      trigger: "onAttack";
-    };
-
-/**
- * =========================
- * CLASS DEFINITION
- * =========================
- */
-
-export interface ClassDefinition {
-  name: string;
-  description: string;
-
+export type ClassDefinition = {
   baseStats: CharacterStats;
-
-  startingSpells: string[]; // references to SPELLS registry
-
-  classAbility: {
-    name: string;
-    description: string;
-    effect: EffectDefinition;
-  };
-}
-
-/**
- * =========================
- * CLASSES
- * =========================
- */
-
-export const CHARACTER_CLASSES: Record<
-  CharacterClass,
-  ClassDefinition
-> = {
-  warrior: {
-    name: "Warrior",
-    description: "Strong melee fighter with high HP and defense.",
-
-    baseStats: {
-      str: 15,
-      dex: 10,
-      int: 8,
-      end: 14,
-      cha: 10,
-      luk: 8,
-    },
-
-    startingSpells: ["slash", "shield_bash"],
-
-    classAbility: {
-      name: "Berserker Rage",
-      description: "Temporarily increase damage output",
-      effect: {
-        type: "statModifier",
-        target: "str",
-        multiplier: 1.5,
-        duration: 3,
-        trigger: "onAttack",
-      },
-    },
-  },
-
-  mage: {
-    name: "Mage",
-    description: "Master of magic with high MP and spell power.",
-
-    baseStats: {
-      str: 8,
-      dex: 10,
-      int: 16,
-      end: 10,
-      cha: 12,
-      luk: 10,
-    },
-
-    startingSpells: ["fireball", "mana_shield", "heal"],
-
-    classAbility: {
-      name: "Spell Amplify",
-      description: "Increase spell power",
-
-      effect: {
-        type: "statModifier",
-        target: "int",
-        multiplier: 1.3,
-        duration: 3,
-        trigger: "onAttack",
-      },
-    },
-  },
-
-  ranger: {
-    name: "Ranger",
-    description: "Agile fighter with high accuracy and crit chance.",
-
-    baseStats: {
-      str: 11,
-      dex: 16,
-      int: 10,
-      end: 11,
-      cha: 10,
-      luk: 14,
-    },
-
-    startingSpells: ["piercing_shot", "multi_shot"],
-
-    classAbility: {
-      name: "Rapid Fire",
-      description: "Attack multiple times",
-
-      effect: {
-        type: "extraAttacks",
-        count: 2,
-        damageMultiplier: 0.6,
-        duration: 1,
-        trigger: "onAttack",
-      },
-    },
-  },
+  description: string;
+  startingSpell?: string;
 };
 
-/**
- * =========================
- * HELPERS
- * =========================
- */
+export const CHARACTER_CLASSES: Record<CharacterClass, ClassDefinition> = {
+  Warrior: {
+    baseStats: { str: 16, dex: 10, int: 6,  end: 14, cha: 8,  luk: 6  },
+    description: "Mighty melee fighter with high endurance.",
+    startingSpell: "Shield Bash",
+  },
 
-export function getClassDefinition(type: CharacterClass) {
-  return CHARACTER_CLASSES[type];
-}
+  Mage: {
+    baseStats: { str: 6,  dex: 8,  int: 18, end: 8,  cha: 10, luk: 10 },
+    description: "Master of elemental magic and arcane power.",
+    startingSpell: "Fireball",
+  },
+
+  Ranger: {
+    baseStats: { str: 10, dex: 16, int: 10, end: 10, cha: 8,  luk: 8  },
+    description: "Precise ranged attacker with high dexterity.",
+    startingSpell: "Multi Shot",
+  },
+
+  Rogue: {
+    baseStats: { str: 10, dex: 18, int: 8,  end: 8,  cha: 10, luk: 12 },
+    description: "Cunning and fast. Strikes from the shadows.",
+    startingSpell: "Piercing Shot",
+  },
+
+  Paladin: {
+    baseStats: { str: 14, dex: 8,  int: 10, end: 16, cha: 12, luk: 6  },
+    description: "Holy warrior who heals allies and smites foes.",
+    startingSpell: "Heal",
+  },
+
+  Shaman: {
+    baseStats: { str: 10, dex: 10, int: 14, end: 10, cha: 10, luk: 10 },
+    description: "Nature mage with balanced magic and resilience.",
+    startingSpell: "Frostbolt",
+  },
+};
